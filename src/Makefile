@@ -11,10 +11,10 @@ fast: *.tex *.bib
 	latexmk -pdf -xelatex $(REPORT_PDF)
 
 
-$(REPORT_PDF).pdf: *.tex *.bib
+$(REPORT_PDF).pdf: *.tex sections/*.tex *.bib
 	$(PDFLATEX) $(REPORT_PDF)
 	$(MAKEINDEX) $(REPORT_PDF).nlo -s nomencl.ist -o $(REPORT_PDF).nls
-	$(BIBTEX) $(REPORT_PDF).aux
+	# $(BIBTEX) $(REPORT_PDF).aux
 	# Used for master paper only
 	# $(BIBTEX) My.aux
 	$(PDFLATEX) $(REPORT_PDF)
