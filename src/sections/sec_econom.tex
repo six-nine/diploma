@@ -188,7 +188,7 @@
 \FPeval{\laptopEnergy}{0.12}
 \FPeval{\timeOfLaptopUse}{652}
 \FPeval{\electricityTariff}{0.2321}
-\FPeval{\electricitySumm}{clip(\laptopEnergy * \timeOfLaptopUse * \electricityTariff)}
+\FPeval{\electricitySumm}{trunc(\laptopEnergy * \timeOfLaptopUse * \electricityTariff, 2)}
 
 \begin{longtable}{
     | >{\raggedright\arraybackslash}m{0.350\textwidth}
@@ -218,7 +218,7 @@
     \hline
     \endhead
 
-    Ноутбук &
+    Ноутбук Apple MacBook Pro 14 2023 &
     \laptopEnergy &
     \timeOfLaptopUse &
     \electricityTariff &
@@ -230,6 +230,168 @@
     \electricitySumm
     \\
     \hline
-
 \end{longtable}
 
+\subsubsection{}
+Расчёт затрат по статье <<Спецоборудование для научных (экспериментальных) работ>> представлен в таблице \ref{sec_econom:table:equipment}.
+
+\FPeval{\laptopPrice}{10590.00}
+
+\begin{longtable}{
+    | >{\raggedright\arraybackslash}m{0.500\textwidth}
+    | >{\raggedright\arraybackslash}m{0.138\textwidth}
+    | >{\raggedright\arraybackslash}m{0.138\textwidth}
+    | >{\raggedright\arraybackslash}m{0.138\textwidth}|}
+    
+    \caption{Расчет затрат на спецоборудование}
+    \label{sec_econom:table:equipment} \\
+    \hline
+    \centering\arraybackslash Наименование специальных инструментов, приспособлений, приборов, стендов, устройств и другого специального оборудования & 
+    \centering\arraybackslash Количе\-ство, шт. & 
+    \centering\arraybackslash Цена, р. & 
+    \centering\arraybackslash Сумма, р. \\
+    \hline
+    \endfirsthead
+
+    \continueTableCaption \\
+    \hline
+    \centering\arraybackslash Наименование специальных инструментов, приспособлений, приборов, стендов, устройств и другого специального оборудования & 
+    \centering\arraybackslash Количе\-ство, шт. & 
+    \centering\arraybackslash Цена, р. & 
+    \centering\arraybackslash Сумма, р. \\
+    \hline
+    \endhead
+
+    Ноутбук Apple MacBook Pro 14 2023 &
+    1 &
+    \laptopPrice &
+    \laptopPrice
+    \\
+
+    \hline
+    \multicolumn{3}{|l|}{Итого} & 
+    \laptopPrice
+    \\
+    \hline
+\end{longtable}
+
+\subsubsection{}
+Расчет затрат на основную заработную плату разработчиков
+
+Для расчета заработной платы используем формулу \ref{sec_econom:eq:main_salary}:
+\begin{equation}
+    \label{sec_econom:eq:main_salary}
+    \text{З}_{\text{O}} = \text{К}_{\text{пр}} \sum_{i = 1}^{n} \text{З}_{\text{ч.i}} \times t_i \text{\,,}
+\end{equation}
+\begin{explanationx}
+\item [где] $ n $ --- количество исполнителей, занятых разработкой ПО;
+\item       $ \text{К}_{\text{пр}} $ --- коэффициент, учитывающий процент премий;
+\item       $ \text{З}_{\text{ч.i}} $ --- часовая заработная плата i-го исполнителя, р.;
+\item       $ t_i $ --- трудоемкость работ, выполняемых i-м исполнителем, ч.
+\end{explanationx}
+
+
+Размер месячной заработной платы исполнителя каждой категории соответствует сложившемуся на рынке труда размеру заработной платы для категорий работников, участвующих в разработке.
+Часовая заработная плата рассчитывалась путем деления месячной заработной платы на 168 рабочих часов в месяце. Размер премии был выбран равным 40\% от размера заработной платы. Расчет затрат на основную заработную плату представлен в таблице \ref{sec_econom:table:main_salary}.
+
+
+\FPeval{\programmerSalary}{2800}
+\FPeval{\workHoursPerMonth}{168}
+\FPeval{\programmerSalaryByHour}{trunc(\programmerSalary / \workHoursPerMonth, 2)}
+\FPeval{\programmerWorkHours}{300}
+\FPeval{\programmerMainSalary}{trunc(\programmerSalaryByHour * \programmerWorkHours, 2)}
+
+\FPeval{\techLeadSalary}{5800}
+\FPeval{\techLeadSalaryByHour}{trunc(\techLeadSalary / \workHoursPerMonth, 2)}
+\FPeval{\techLeadWorkHours}{100}
+\FPeval{\techLeadMainSalary}{trunc(\techLeadSalaryByHour * \techLeadWorkHours, 2)}
+
+\FPeval{\commonMainSalary}{trunc(\techLeadMainSalary + \programmerMainSalary, 2)}
+\FPeval{\bonusPercents}{40}
+\FPeval{\bonusSize}{trunc(\commonMainSalary * \bonusPercents / 100, 2)}
+\FPeval{\commonMainSalaryWithBonus}{trunc(\commonMainSalary + \bonusSize, 2)}
+
+\begin{longtable}{
+    | >{\raggedright\arraybackslash}m{0.250\textwidth}
+    | >{\raggedright\arraybackslash}m{0.166\textwidth}
+    | >{\raggedright\arraybackslash}m{0.166\textwidth}
+    | >{\raggedright\arraybackslash}m{0.166\textwidth}
+    | >{\raggedright\arraybackslash}m{0.166\textwidth}|}
+    
+    \caption{Затраты на основную заработную плату разработчиков}
+    \label{sec_econom:table:main_salary} \\
+    \hline
+    \centering\arraybackslash Категория разра\-ботчика & 
+    \centering\arraybackslash Месячный оклад (тарифная ставка), р. & 
+    \centering\arraybackslash Часовой оклад (тарифная ставка), р. & 
+    \centering\arraybackslash Тру\-до\-ем\-кость работ, ч & 
+    \centering\arraybackslash Итого, р. \\
+    \hline
+    \endfirsthead
+
+    \continueTableCaption \\
+    \hline
+    \centering\arraybackslash Категория разра\-ботчика & 
+    \centering\arraybackslash Месячный оклад (тарифная ставка), р. & 
+    \centering\arraybackslash Часовой оклад (тарифная ставка), р. & 
+    \centering\arraybackslash Тру\-до\-ем\-кость работ, ч & 
+    \centering\arraybackslash Итого, р. \\
+    \hline
+    \endhead
+
+    Инженер-программист &
+    \programmerSalary &
+    \programmerSalaryByHour &
+    \programmerWorkHours &
+    \programmerMainSalary
+    \\
+
+    \hline
+    Технический руководитель проекта &
+    \techLeadSalary &
+    \techLeadSalaryByHour &
+    \techLeadWorkHours &
+    \techLeadMainSalary
+    \\
+
+    \hline
+    \multicolumn{4}{|l|}{Итого} &
+    \commonMainSalary
+    \\
+
+    \hline
+    \multicolumn{4}{|l|}{Премия и стимулирующие выплаты} &
+    \bonusSize
+    \\
+
+    \hline
+    \multicolumn{4}{|l|}{Всего затраты на основную заработную плату} & 
+    \commonMainSalaryWithBonus
+    \\
+    \hline
+\end{longtable}
+
+
+\subsubsection{}
+Расчет затрат на дополнительную заработную плату разработчиков
+
+Расчет дополнительных выплат, предусмотренных законодательством о труде, осуществляем по формуле 
+
+\begin{equation}
+    \label{sec_econom:eq:main_salary}
+    \text{З}_{\text{Д}} = \frac{\text{З}_{\text{О}} \times \text{Н}_{\text{Д}}}{100\%} \text{\,,}
+\end{equation}
+\begin{explanationx}
+\item [где] $ \text{З}_{\text{О}} $ --- затраты на основную заработную плату, р.;
+\item       $ \text{Н}_{\text{Д}} $ --- норматив дополнительной заработной платы.
+\end{explanationx}
+
+\FPeval{\additionalSalaryPercents}{15}
+Норматив дополнительной заработной платы был принят равным \additionalSalaryPercents\%. Размер дополнительной заработной составил:
+
+\FPeval{\additionalSalary}{trunc(\commonMainSalary * \additionalSalaryPercents / 100, 2)}
+
+\begin{equation}
+    \label{sec_econom:eq:main_salary_count}
+    \text{З}_{\text{Д}} = \frac{\commonMainSalary \times \additionalSalaryPercents}{100\%} = \additionalSalary \text{\,,}
+\end{equation}
