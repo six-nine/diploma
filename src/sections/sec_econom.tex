@@ -449,9 +449,122 @@
 \item [где] $ \text{Р}_{\text{н.т.п.}} $ --- рентабельность научно-технической продукции.
 \end{explanationx}
 
-\FPeval{\profitability}{40}
+\FPeval{\profitability}{20}
 \FPeval{\planIncome}{trunc(\fullPayment * \profitability / 100, 2)}
 Принимая рентабельность научно-технической продукции равной \profitability\%, плановая прибыль составит:
 \begin{equation*}
     \text{П} = \frac{\text{С}_{\text{п}} \times \text{Р}_{\text{н.т.п.}}}{100\%} = \frac{\fullPayment \times \profitability}{100\%} = \planIncome \text{\,,}
 \end{equation*}
+
+
+\subsubsection{} Расчет сметной стоимости научно-технической продукции
+
+Сметная стоимость научно-технической продукции $ \text{Ц}_{\text{н.т.п}} $ вычисляется с помощью формулы \ref{sec_econom:eq:smet_price}
+\begin{equation}
+    \label{sec_econom:eq:smet_price}
+    \text{Ц}_{\text{н.т.п.}} = \text{С}_{\text{п}} + \text{П} \text{\,,}
+\end{equation}
+
+Сметная стоимость научно-технической продукции составила:
+\FPeval{\smetPrice}{trunc(\fullPayment + \planIncome, 2)}
+\begin{equation*}
+    \text{Ц}_{\text{н.т.п.}} = \text{С}_{\text{п}} + \text{П} = \fullPayment + \planIncome = \smetPrice \text{\,,}
+\end{equation*}
+
+
+\subsection{Расчёт уровня качества научно-технического результата}
+
+Количественная оценка уровня качества научно-технического результата, полученного в дипломной работе, рассчитывается по формуле \ref{sec_econom:eq:diploma_level}
+\begin{equation}
+    \label{sec_econom:eq:diploma_level}
+    \text{К}_{\text{к}} = \sum_{i=1}^{n} \text{К}_{\text{нз}i} \times \text{Б}_{\text{д}i} \text{\,,}
+\end{equation}
+\begin{explanationx}
+\item [где] $ \text{К}_{\text{к}} $ --- комплексный показатель достигнутого уровня результата выполненных исследований;
+\item       $ \text{К}_{\text{нз}i} $ --- нормированный коэффициент значимости i-го критерия, используе-мого для оценки;
+\item       $ \text{Б}_{\text{д}i} $ --- достигнутый уровень по i-му критерию;
+\item       $ n $ --- количество критериев научно-технической прогрессивности и полезности результатов, полученных в дипломной работе.
+\end{explanationx}
+
+Расчет уровня качества производится с использованием различных критериев. Далее будут использованы следующие из них: новизна, значимость для науки и практики, объективность, доказательность, точность. Каждому критерию дается характеристика и уровень в баллах (от 1 до 5). Чем выше балл, тем выше результат исследований по критерию. Осуществляется оценка значимости каждого из критериев. Полученные оценки значимости нормируются, чтобы сумма всех нормированных коэффициентов значимости $\text{К}_{\text{н.з}i} $ i-го критерия была равна единице. Характеристика критериев и оценка достигнутых результатов приведены в таблице \ref{sec_econom:table:criterias}
+
+\FPeval{\newnessRate}{4}
+\FPeval{\newnessRatio}{0.2}
+
+\FPeval{\importancyRate}{3}
+\FPeval{\importancyRatio}{0.4}
+
+\FPeval{\objectivityRate}{2}
+\FPeval{\objectivityRatio}{0.05}
+
+\FPeval{\provenessRate}{3}
+\FPeval{\provenessRatio}{0.2}
+
+\FPeval{\accuracyRate}{4}
+\FPeval{\accuracyRatio}{0.15}
+
+\begin{longtable}{
+    | >{\raggedright\arraybackslash}m{0.400\textwidth}
+    | >{\raggedright\arraybackslash}m{0.257\textwidth}
+    | >{\raggedright\arraybackslash}m{0.257\textwidth}|}
+    
+    \caption{Оценка достигнутых результатов}
+    \label{sec_econom:table:criterias} \\
+    \hline
+    \centering\arraybackslash Критерий & 
+    \centering\arraybackslash Уровень & 
+    \centering\arraybackslash $\text{К}_{\text{нз}i}$ \\
+    \hline
+    \endfirsthead
+
+    \continueTableCaption \\
+    \hline
+    \centering\arraybackslash Критерий & 
+    \centering\arraybackslash Уровень & 
+    \centering\arraybackslash $\text{К}_{\text{нз}i}$ \\
+    \hline
+    \endhead
+
+    Новизна &
+    \newnessRate &
+    \newnessRatio
+    \\
+
+    \hline
+    Значимость для науки и практики &
+    \importancyRate &
+    \importancyRatio
+    \\
+
+    \hline
+    Объективность &
+    \objectivityRate &
+    \objectivityRatio
+    \\
+
+    \hline
+    Доказательность &
+    \provenessRate &
+    \provenessRatio
+    \\
+
+    \hline
+    Точность &
+    \accuracyRate &
+    \accuracyRatio
+    \\
+
+    \hline
+\end{longtable}
+
+На основе показателей, приведенных в таблице \ref{sec_econom:table:criterias}, рассчитаем комплексный показатель достигнутого уровня качества дипломной работы:
+\FPeval{\criteriasResult}{trunc(\newnessRate * \newnessRatio + \importancyRate * \importancyRatio + \objectivityRate * \objectivityRatio + \provenessRate * \provenessRatio + \accuracyRate * \accuracyRatio, 1)}
+\begin{equation*}
+    \begin{gathered}
+        \text{К}_{\text{к}} = \sum_{i=1}^{n} \text{К}_{\text{нз}i} \times \text{Б}_{\text{д}i} = \\
+        = \newnessRate \times \newnessRatio + \importancyRate \times \importancyRatio + \objectivityRate \times \objectivityRatio + \provenessRate \times \provenessRatio + \accuracyRate \times \accuracyRatio = \criteriasResult
+    \end{gathered}
+\end{equation*}
+
+Так как $ \text{К}_{\text{к}} \ge 3 $, то можно считать, что полученные в данной дипломной работе результаты соответствуют современным требованиям, предъявляемым к НИОКР.
+
