@@ -392,7 +392,7 @@
 \FPeval{\additionalSalary}{trunc(\commonMainSalaryWithBonus * \additionalSalaryPercents / 100, 2)}
 
 \begin{equation*}
-    \text{З}_{\text{д}} = \frac{\text{З}_{\text{о}} \times \text{Н}_{\text{д}}}{100\%} = \frac{\commonMainSalaryWithBonus \times \additionalSalaryPercents}{100\%} = \additionalSalary \text{\,,}
+    \text{З}_{\text{д}} = \frac{\text{З}_{\text{о}} \times \text{Н}_{\text{д}}}{100\%} = \frac{\commonMainSalaryWithBonus \times \additionalSalaryPercents}{100\%} = \additionalSalary \text{ р.}
 \end{equation*}
 
 \subsubsection{ } Расчет отчислений на социальные нужды
@@ -411,7 +411,7 @@
 Норматив отчислений от фонда оплаты труда был принят равным \socialPaymentsPercent\%. Размер отчислений на социальные нужны составил:
 \FPeval{\socialPayments}{trunc((\commonMainSalaryWithBonus + \additionalSalary) * \socialPaymentsPercent / 100, 2)}
 \begin{equation*}
-    \text{Р}_{\text{соц}} = \frac{ (\text{З}_{\text{о}} + \text{З}_{\text{д}}) \times \text{Н}_{\text{соц}} }{100\%} = \frac{ (\commonMainSalaryWithBonus + \additionalSalary) \times \socialPaymentsPercent }{100\%} = \socialPayments \text{\,,}
+    \text{Р}_{\text{соц}} = \frac{ (\text{З}_{\text{о}} + \text{З}_{\text{д}}) \times \text{Н}_{\text{соц}} }{100\%} = \frac{ (\commonMainSalaryWithBonus + \additionalSalary) \times \socialPaymentsPercent }{100\%} = \socialPayments \text{ р.}
 \end{equation*}
 
 
@@ -432,7 +432,7 @@
 \begin{equation*}
     \begin{gathered}
         \text{С}_{\text{п}} = \text{З}_{\text{тэр}} + \text{З}_{\text{со}} + \text{З}_{\text{д}} + \text{Р}_{\text{соц}} = \\
-        = \electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments = \fullPayment
+        = \electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments = \fullPayment \text{ р.}
     \end{gathered}
 \end{equation*}
 
@@ -453,7 +453,7 @@
 \FPeval{\planIncome}{trunc(\fullPayment * \profitability / 100, 2)}
 Принимая рентабельность научно-технической продукции равной \profitability\%, плановая прибыль составит:
 \begin{equation*}
-    \text{П} = \frac{\text{С}_{\text{п}} \times \text{Р}_{\text{н.т.п.}}}{100\%} = \frac{\fullPayment \times \profitability}{100\%} = \planIncome \text{\,,}
+    \text{П} = \frac{\text{С}_{\text{п}} \times \text{Р}_{\text{н.т.п.}}}{100\%} = \frac{\fullPayment \times \profitability}{100\%} = \planIncome \text{ р.} \text{\,,}
 \end{equation*}
 
 
@@ -468,8 +468,10 @@
 Сметная стоимость научно-технической продукции составила:
 \FPeval{\smetPrice}{trunc(\fullPayment + \planIncome, 2)}
 \begin{equation*}
-    \text{Ц}_{\text{н.т.п.}} = \text{С}_{\text{п}} + \text{П} = \fullPayment + \planIncome = \smetPrice \text{\,,}
+    \text{Ц}_{\text{н.т.п.}} = \text{С}_{\text{п}} + \text{П} = \fullPayment + \planIncome = \smetPrice \text{ р.} \text{\,,}
 \end{equation*}
+
+Данная научно-исследовательская работа проводилась исследовательской командой в составе двух специалистов (научный руководитель и ответственный исполнитель) и в результате сметная стоимость научно-технической продукции составила \smetPrice \text{ р.}
 
 
 \subsection{Расчёт уровня качества научно-технического результата}
@@ -481,12 +483,12 @@
 \end{equation}
 \begin{explanationx}
 \item [где] $ \text{К}_{\text{к}} $ --- комплексный показатель достигнутого уровня результата выполненных исследований;
-\item       $ \text{К}_{\text{нз}i} $ --- нормированный коэффициент значимости i-го критерия, используе-мого для оценки;
+\item       $ \text{К}_{\text{нз}i} $ --- нормированный коэффициент значимости i-го критерия, используемого для оценки;
 \item       $ \text{Б}_{\text{д}i} $ --- достигнутый уровень по i-му критерию;
 \item       $ n $ --- количество критериев научно-технической прогрессивности и полезности результатов, полученных в дипломной работе.
 \end{explanationx}
 
-Расчет уровня качества производится с использованием различных критериев. Далее будут использованы следующие из них: новизна, значимость для науки и практики, объективность, доказательность, точность. Каждому критерию дается характеристика и уровень в баллах (от 1 до 5). Чем выше балл, тем выше результат исследований по критерию. Осуществляется оценка значимости каждого из критериев. Полученные оценки значимости нормируются, чтобы сумма всех нормированных коэффициентов значимости $\text{К}_{\text{н.з}i} $ i-го критерия была равна единице. Характеристика критериев и оценка достигнутых результатов приведены в таблице \ref{sec_econom:table:criterias}
+Расчет уровня качества производится с использованием различных критериев. Далее будут использованы следующие из них: новизна, значимость для науки и практики, объективность, доказательность, точность. Каждому критерию дается характеристика и уровень в баллах (от 1 до 5). Чем выше балл, тем выше результат исследований по критерию. Осуществляется оценка значимости каждого из критериев. Полученные оценки значимости нормируются, чтобы сумма всех нормированных коэффициентов значимости $\text{К}_{\text{н.з}i} $ i-го критерия была равна единице. Характеристика критериев и оценка достигнутых результатов приведены в таблице \ref{sec_econom:table:criterias}.
 
 \FPeval{\newnessRate}{4}
 \FPeval{\newnessRatio}{0.2}
