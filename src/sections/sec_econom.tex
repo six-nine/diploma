@@ -428,25 +428,43 @@
     \text{Р}_{\text{соц}} = \frac{ (\text{З}_{\text{о}} + \text{З}_{\text{д}}) \times \text{Н}_{\text{соц}} }{100} = \frac{ (\commonMainSalaryWithBonus + \additionalSalary) \times \socialPaymentsPercent }{100} = \socialPayments \text{ р.}
 \end{equation*}
 
+\subsubsection{ } Расчет накладных расходов
+
+Накладные расходы рассчитаем по формуле \ref{sec_econom:eq:overhead}:
+
+\begin{equation}
+    \label{sec_econom:eq:overhead}
+    \text{Р}_{\text{н}} = \frac{ \text{З}_{\text{о}} \times \text{Н}_{\text{н}} }{100} \text{\,,}
+\end{equation}
+\begin{explanationx}
+\item [где] $ \text{Н}_{\text{н}} $ --- норматив накладных расходов.
+\end{explanationx}
+
+\FPeval{\overheadPercent}{60}
+Норматив накладных расходов был принят равным \overheadPercent\%. Размер накладных расходов составил:
+\FPeval{\overhead}{trunc(\commonMainSalaryWithBonus * \overheadPercent / 100, 2)}
+\begin{equation*}
+    \text{Р}_{\text{н}} = \frac{ \text{З}_{\text{о}} \times \text{Н}_{\text{н}} }{100} = \frac{ \commonMainSalaryWithBonus \times \overheadPercent}{100} = \overhead \text{ р.}
+\end{equation*}
 
 \subsubsection{} Расчет полной себестоимости
 
 Полную себестоимость научно-исследовательской работы $ \text{С}_{\text{п}} $ рассчитаем по формуле \ref{sec_econom:eq:full_payment}:
 \begin{equation}
     \label{sec_econom:eq:full_payment}
-    \text{С}_{\text{п}} = \text{З}_{\text{тэр}} + \text{З}_{\text{со}} + \text{З}_{\text{о}} + \text{З}_{\text{д}} + \text{Р}_{\text{соц}} \text{\,,}
+    \text{С}_{\text{п}} = \text{З}_{\text{тэр}} + \text{З}_{\text{со}} + \text{З}_{\text{о}} + \text{З}_{\text{д}} + \text{Р}_{\text{соц}} + \text{Р}_{\text{н}} \text{\,,}
 \end{equation}
 \begin{explanationx}
-\item [где] $ \text{З}_{\text{тэр}} $ --- затраты на топливно-­энергетические ресуры, приведённые в таблице \ref{sec_econom:table:top_energ_res};
+\item [где] $ \text{З}_{\text{тэр}} $ --- затраты на топливно-энергетические ресуры, приведённые в таблице \ref{sec_econom:table:top_energ_res};
 \item       $ \text{З}_{\text{со}} $ --- затраты на спецооборудование, приведенные в таблице \ref{sec_econom:table:equipment}.
 \end{explanationx}
 
 Полная себестоимость научно-исследовательской работы составила:
-\FPeval{\fullPayment}{trunc(\electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments, 2)}
+\FPeval{\fullPayment}{trunc(\electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments + \overhead, 2)}
 \begin{equation*}
     \begin{gathered}
-        \text{С}_{\text{п}} = \text{З}_{\text{тэр}} + \text{З}_{\text{со}} + \text{З}_{\text{о}} + \text{З}_{\text{д}} + \text{Р}_{\text{соц}} = \\
-        = \electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments = \fullPayment \text{ р.}
+        \text{С}_{\text{п}} = \text{З}_{\text{тэр}} + \text{З}_{\text{со}} + \text{З}_{\text{о}} + \text{З}_{\text{д}} + \text{Р}_{\text{соц}} + \text{Р}_{\text{н}} = \\
+        = \electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments + \overhead = \fullPayment \text{ р.}
     \end{gathered}
 \end{equation*}
 

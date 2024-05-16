@@ -3,8 +3,24 @@ import subprocess
 import sys, platform
 import os
 import sysconfig
+import sys
+import argparse
+import webbrowser
+
+
+REPORT_PDF_PATH = f'{os.getcwd()}/src/report.pdf'
 
 def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--open',
+                        action="store_true",
+                        required=False,
+                        default=False,
+                        help='Open report.pdf after successfull compilation')
+    FLAGS = parser.parse_args()
+
+    print(sys.argv)
     system = platform.system()
 
     compile_cmd = 'make -j4 -C "src" all'
@@ -20,7 +36,10 @@ def main():
 
     print(f"Running command:\n{cmd}")
 
-    subprocess.run(cmd, shell=True)
+    compilation_exit_code = subprocess.run(cmd, shell=True).returncode
+
+    if compilation_exit_code == 0 and FLAGS.open:
+        webbrowser.open_new(rf'file://{REPORT_PDF_PATH}')
 
 if __name__=="__main__":
     main()
