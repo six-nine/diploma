@@ -1,3 +1,406 @@
 \section{Программная реализация}
 
+В целях исследования реализуем ленивую десериализацию вложенных сообщений, то есть полей, типом данных которых является другое сообщение.
 
+\subsection{Создание новой опции для полей}
+
+Процесс кодогенерации в компиляторе \textit{protoc} частично управляется опциями полей.
+Опции указываются после указания номера поля в сообщении, в квадратных скобках в формате <<название опции = значение>>.
+Создание опции начинается с добавления соответствующего поля в proto-сообщение \textit{FieldOptions}.
+Заведём новую опцию \textit{lazy\_pack}, говорящую о том, должно ли данное поле быть десериализовано <<лениво>>:
+\begin{lstlisting}[style=CodeListing]
+
+message FieldOptions {
+    ...
+    optional bool lazy_pack = 16 [default = false];
+    ...
+}
+
+\end{lstlisting}
+
+Далее необходимо создать вспомогательные методы, которые будут использоваться в коде для проверки установленности данной опции.
+В листинге \ref{sec_impl:code:is_lazy_pack} представлена реализация данных методов, располагаемых в файле \textit{src/google/protobuf/compiler/cpp/helpers.h}.
+
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:is_lazy_pack, caption={Вспомогательные методы для определения опции lazy\_pack}]
+
+bool IsLazyPack(const FieldDescriptor* field, const Options& options,
+                MessageSCCAnalyzer* scc_analyzer) {
+  bool res = field->options().lazy_pack();
+  bool only_messages_has_lazy_pack_attr = !res || (field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE); 
+  GOOGLE_CHECK(only_messages_has_lazy_pack_attr) << 
+    "\nOnly message type fields can be marked as [lazy_pack=true]!";
+  return res;
+}
+
+static bool HasLazyPackFields(const Descriptor* descriptor, const Options& options,
+                          MessageSCCAnalyzer* scc_analyzer) {
+  for (int field_idx = 0; field_idx < descriptor->field_count(); field_idx++) {
+    if (IsLazyPack(descriptor->field(field_idx), options, scc_analyzer)) {
+      return true;
+    }
+  }
+  for (int idx = 0; idx < descriptor->extension_count(); idx++) {
+    if (IsLazyPack(descriptor->extension(idx), options, scc_analyzer)) {
+      return true;
+    }
+  }
+  for (int idx = 0; idx < descriptor->nested_type_count(); idx++) {
+    if (HasLazyPackFields(descriptor->nested_type(idx), options, scc_analyzer)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HasLazyPackFields(const FileDescriptor* file, const Options& options,
+                   MessageSCCAnalyzer* scc_analyzer) {
+  for (int i = 0; i < file->message_type_count(); i++) {
+    const Descriptor* descriptor(file->message_type(i));
+    if (HasLazyPackFields(descriptor, options, scc_analyzer)) {
+      return true;
+    }
+  }
+  for (int field_idx = 0; field_idx < file->extension_count(); field_idx++) {
+    if (IsLazyPack(file->extension(field_idx), options, scc_analyzer)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+\end{lstlisting}
+
+\subsection{Arena Allocation}
+
+Выделение памяти в аренах (Arena Allocation) ~--~ это техника оптимизации памяти для protobuf-сообщений, реализованная в Google Protobuf C++. 
+Она заключается в выделении памяти для сообщений и их под-объектов из заранее выделенного блока (арены) вместо кучи.
+Это позволяет снизить накладные расходы на выделение памяти и повысить производительность.
+
+Преимуществами такого подхода являются:
+\begin{itemize}
+    \item более быстрое выделение и освобождение сообщений ~--~ аренная память выделяется из предварительно выделенного пула, что устраняет необходимость в частом выделении и освобождении данных на куче;
+    \item повышенная эффективность использования кэша для объектов сообщений ~--~ аренное выделение памяти позволяет повторно использовать память для сообщений, что приводит к более эффективному использованию кэша.
+\end{itemize}
+
+Не смотря на преимущества, аренное выделение памяти имеет недостаток в виде возможных лишних копирований в процессе работы, так как по своей сути арена ~--~ собственная реализация аллокатора над заранее выделенным куском памяти, и в некоторых случаях реаллокация неизбежна. Такие моменты могут вызывать просадки в производительности.
+
+Использование аренной аллокации полезно при частом создании и уничтожении сообщений: аренная память подходит для сценариев, где сообщения создаются и уничтожаются часто, например, на серверах, обрабатывающих запросы.
+
+Класс Arena в своей реализации имеет следующие методы:
+\begin{itemize}
+    \item NewMessage() ~--~ Создает новое сообщение, выделенное в указанной арене;
+    \item Allocate() ~--~ Выделяет блок памяти указанного размера в арене;
+    \item Reset() ~--~ Сбрасывает арену, освобождая выделенную память.
+\end{itemize}
+
+Также следует отметить несколько особенностей использования арен в Protocol Buffers:
+
+\begin{itemize}
+    \item вложенные поля сообщений автоматически выделяются в той же арене, что и родительское сообщение;
+    \item повторяющиеся поля могут использовать свои собственные арены или делиться ареной с родительским сообщением.
+\end{itemize}
+
+\subsection{Работа с кодогенерацией}
+
+Кодогенерация производится с помощью функтора \textit{Formatter}.
+Это класс-функтор, который инкапсулирует объект \textit{printer} и словарь переменных.
+Он похож на метод Print объекта \textit{printer}, за исключением того, что он поддерживает как именованные переменные, подставляемые с помощью словаря ключ-значение, так и прямые аргументы (по аналогии с языком программирования Python).
+
+Первым аргументом функтору подаётся строка для форматирования. Каждая переменная в строке для форматирования начинается со знака <<доллар>> (\$).
+Далее следует имя аргумента в случае именованных параметров и номер аргумента в случае позиционных параметров. 
+После строки для форматирования подаются позиционные аргументы.
+Именованные агрументы передаются функтору заранее с помощью метода \textit{Set(absl::string\_view key, const T\& value)}.
+
+Реализация проверяет, используются ли все аргументы и используются ли они в том порядке, в котором они появляются в списке аргументов.
+Допускается неоднократное использование одного аргумента.
+Данное поведение продемонстрировано в листинге \ref{sec_impl:code:formatter_example}.
+
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:formatter_example, caption={Пример валидации, реализованной в функторе Formatter}]
+Formatter("return array[$1$];", 3) -> "return array[3];"  // Верно
+Formatter("array[$2$] = $1$;", "Bla", 3) -> Ошибка (неправильный порядок)
+Formatter("array[$1$] = $2$;", 3, "Bla") -> "array[3] = Bla;"  // Верно
+
+Formatter("array[$1$] = $2$; // Index = $1$", 3, "Bla") ->
+    "array[3] = Bla; // Index = 3"  // Верно
+\end{lstlisting}
+
+\subsection{Реализация модуля}
+
+Так как в рамках данной работы рассматривается ленивая десериализация вложенных сообщений, реализуемый модуль должен быть наследником класса \textit{MessageLite},
+который содержит в себе поля и методы, представленные в листинге \ref{sec_impl:code:lazy_field_h}:
+
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:lazy_field_h, caption={Описание класса LazyField}]
+
+#pragma once
+
+#include "google/protobuf/message.h"
+#include "google/protobuf/port.h"
+#include "google/protobuf/message_lite.h"
+#include <google/protobuf/arena.h>
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/parse_context.h>
+
+#include <string>
+#include <optional>
+
+namespace google {
+namespace protobuf {
+
+/// @brief store raw binary data without parsing
+/// and provide Unpack method to deserialize data to Message.
+/// @tparam T Message which will be stored in raw form
+template<class T>
+class TLazyField : public MessageLite {
+enum class EBinaryDataType {
+    STRING = 0,
+    LIST_BUFFERS = 1
+};
+
+public:
+    TLazyField();
+    TLazyField(google::protobuf::Arena* arena);
+    TLazyField(const TLazyField<T>& other);
+    TLazyField<T>& operator=(const TLazyField<T>& other);
+
+    TLazyField(TLazyField<T>&& other);
+    TLazyField<T>& operator=(TLazyField<T>&& other);
+    ~TLazyField();
+
+    std::string GetTypeName() const override;
+    TLazyField<T>* New(Arena* arena) const override;
+
+    void Clear() override;
+
+    bool IsInitialized() const override;
+
+    void CheckTypeAndMergeFrom(const MessageLite& other) override;
+
+    size_t ByteSizeLong() const override;
+
+    int GetCachedSize() const override;
+
+    const Descriptor* GetDescriptor() const;
+
+    const Reflection* GetReflection() const;
+
+    T* Unpack() const;
+
+    void MergeFrom(const TLazyField<T>& from);
+
+    const char* _InternalParse(const char* ptr, internal::ParseContext* ctx) override;
+
+    void _InternalParse(std::string&& buff);
+
+    void _InternalParse(std::vector<google::protobuf::internal::TLazyRefBuffer> data);
+
+private:
+    uint8_t* _InternalSerialize(uint8_t* ptr, io::EpsCopyOutputStream* stream) const override;
+    size_t GetBinarySize() const;
+
+protected:
+
+private:
+    mutable google::protobuf::Arena* arena = nullptr;
+    mutable T* Value_ = nullptr;
+    mutable bool IsUnpacked_ = false;
+
+    EBinaryDataType BinaryDataType_;
+    std::vector<google::protobuf::internal::TLazyRefBuffer> BinaryDataList_;
+    std::shared_ptr<std::string> BinaryData_;
+    mutable absl::optional<size_t> BinarySize_;
+};
+
+\end{lstlisting}
+
+Перечисление \textit{EBinaryDataType} определяет возможные типы данных для хранимых двоичных данных:
+\begin{itemize}
+    \item STRING ~--~ данные хранятся как одна строка;
+    \item LIST\_BUFFERS ~--~ данные фрагментируются на список буферов.
+\end{itemize}
+
+Публичные методы имеют следующее назначение:
+\begin{itemize}
+    \item GetTypeName() ~--~ возвращает имя типа сообщения;
+    \item New(Arena* arena) ~--~ создает новый экземпляр \textit{TLazyField} на предоставленной арене;
+    \item Clear() ~--~ очищает хранимые данные и состояние;
+    \item IsInitialized() ~--~ проверяет, инициализировано ли поле;
+    \item CheckTypeAndMergeFrom(const MessageLite\& other) ~--~ проверяет совместимость и сливает с другим сообщением;
+    \item ByteSizeLong() ~--~ возвращает расчетный размер сериализованных данных;
+    \item GetCachedSize() ~--~ возвращает кешированный размер данных, если он доступен;
+    \item GetDescriptor() ~--~ возвращает дескриптор сообщения;
+    \item GetReflection() ~--~ возвращает объект отражения;
+    \item Unpack() const ~--~ вызывает десериализацию хранимого сообщения в бинарном формате, если десериализация ещё не была произведена;
+    \item MergeFrom(const TLazyField<T>\& from) ~--~ сливает данные из другого объекта TLazyField;
+    \item \_InternalParse(...) ~--~ внутренняя функция, реализующая десериализацию из бинарного представления.
+\end{itemize}
+
+Приватные методы имеют следующее назначение:
+
+\begin{itemize}
+    \item \_InternalSerialize(uint8\_t* ptr, io::EpsCopyOutputStream* stream) const ~--~ Сериализует сообщение.
+    \item GetBinarySize() const ~--~ Возвращает размер хранимых двоичных данных.
+\end{itemize}
+
+Переменные-члены класса имеют следующее назначение:
+
+\begin{itemize}
+    \item arena ~--~ опциональный указатель на объект Arena, если таковой предоставлен;
+    \item Value\_ ~--~ указатель на десериализованное сообщение;
+    \item IsUnpacked\_ ~--~ флаг, указывающий, были ли данные распакованы;
+    \item BinaryDataType\_ ~--~ значение перечисления, указывающее тип хранимых двоичных данных;
+    \item BinaryDataList\_ ~--~ список буферов, используемых для хранения фрагментированных данных;
+    \item BinaryData\_ ~--~ указатель на строковый объект, используемый для хранения строковых данных;
+    \item BinarySize\_ ~--~ размер хранимых двоичных данных.
+\end{itemize}
+
+Рассмотрим реализацию некоторых из приведённых методов. 
+
+\subsubsection{} \_InternalParse
+
+Данный метод использует необходимую перегрузку самого себя в зависимости от того, откуда распаковываются данные:
+
+\begin{lstlisting}[style=CodeListing]
+template<class T>
+const char* TLazyField<T>::_InternalParse(const char* ptr, internal::ParseContext* ctx) {
+    if (ctx->IsDerivedFromReleasableBufferStream()) {
+        _InternalParse(ctx->ReadAllDataAsBuffersArray(&ptr));
+    } else {
+        _InternalParse(ctx->ReadAllDataAsString(&ptr));
+    }
+    return ptr;
+}
+\end{lstlisting}
+
+\subsubsection{} Unpack
+
+Данный метод производит десериализацию сообщения, если она ещё не была произведена:
+
+\begin{lstlisting}[style=CodeListing]
+template<class T>
+T* TLazyField<T>::Unpack() const {
+    if (!IsUnpacked_) {
+        if (BinaryDataType_ == EBinaryDataType::STRING) {
+            Value_->ParseFromString(*BinaryData_);
+        } else {
+            std::string tmp;
+            for (const auto& buff : BinaryDataList_) {
+                tmp += std::string(
+                    buff.data.get() + buff.start_offset,
+                    buff.data.get() + buff.size - buff.end_offset
+                );
+            }
+            Value_->ParseFromString(tmp);
+        }
+        IsUnpacked_ = true;
+    }
+
+    return Value_;
+}
+\end{lstlisting}
+
+\subsubsection{} Clear
+
+Данный метод очищает сообщение:
+
+\begin{lstlisting}[style=CodeListing]
+template<class T>
+void TLazyField<T>::Clear() {
+    IsUnpacked_ = false;
+    if (Value_) Value_->Clear();
+    BinaryData_ = std::make_shared<std::string>("");
+    BinaryDataList_.clear();
+    BinaryDataType_ = EBinaryDataType::STRING;
+    BinarySize_.reset();
+}
+\end{lstlisting}
+
+\subsubsection{} ByteSizeLong
+
+Данный метод возвращает размер сообщения в байтах. Если сообщение было распаковано, возвращается результат этого же метода в распакованном сообщении, иначе ~--~ размер бинарных данных:
+
+\begin{lstlisting}
+template<class T>
+size_t TLazyField<T>::ByteSizeLong() const {
+    if (!IsUnpacked_) {
+        return GetBinarySize();
+    }
+    return Value_->ByteSizeLong();
+}
+\end{lstlisting}
+
+\subsubsection{} MergeFrom
+
+Данный метод объединяет сообщение с другим сообщением того же типа. При этом производится распаковка обоих сообщений:
+
+\begin{lstlisting}[style=CodeListing]
+template<class T>
+void TLazyField<T>::MergeFrom(const TLazyField<T>& from) {
+    if (from.IsUnpacked_) {
+        Unpack()->MergeFrom(*from.Value_);
+    } else {
+        T tmp;
+        tmp.ParseFromString(*from.BinaryData_);
+        Unpack()->MergeFrom(tmp);
+    }
+}
+\end{lstlisting}
+
+\subsubsection{} GetBinarySize
+
+Данный метод вычисляет и возвращает размер нераспакованных бинарных данных:
+
+\begin{lstlisting}[style=CodeListing]
+
+template<class T>
+size_t TLazyField<T>::GetBinarySize() const {
+    if (BinarySize_) {
+        return *BinarySize_;
+    }
+
+    if (BinaryDataType_ == EBinaryDataType::STRING) {
+        BinarySize_ = BinaryData_->size();
+    } else {
+        size_t tmp = 0;
+        for (const auto& buff : BinaryDataList_) {
+            tmp += (buff.size - (buff.start_offset + buff.end_offset));
+        }
+        BinarySize_ = tmp;
+    }
+
+    return *BinarySize_;
+}
+\end{lstlisting}
+
+\subsection{Внеднение модуля в библиотеку}
+
+После реализации модуля необходимо произвести действия по кодогенерации его использования.
+Для начала необходимо включить необходимый заголовок, если в компилируемом сообщении присутствуют поля, помеченные созданной опцией \textit{lazy\_pack}:
+
+\begin{lstlisting}
+  if (HasLazyPackFields(file_, options_, &scc_analyzer_)) {
+    GOOGLE_CHECK(options_.opensource_runtime);
+    IncludeFile("net/proto2/public/lazy_packed_field.h", p);
+  }
+\end{lstlisting}
+
+Далее необходимо внести изменения в класс \textit{MessageFieldGenerator}. Так как теперь поле с типом сообщения может быть помечено как \textit{lazy}, следует сохранить это свойство в поле:
+
+\begin{lstlisting}[style=CodeListing]
+class MessageFieldGenerator : public FieldGenerator {
+...
+protected:
+  const bool implicit_weak_field_;
+  const bool lazy_pack_field;
+  const bool has_required_fields_;
+};
+\end{lstlisting}
+
+Если установлена опция, необходимо <<обернуть>> данное сообщение в класс \textit{LazyField}, описанный ранее, с помощью передачи ему шаблонного параметра:
+
+\begin{lstlisting}[style=CodeListing]
+  if (IsLazyPack(descriptor, options, nullptr)) {
+    (*variables)["type"] = "::PROTOBUF_NAMESPACE_ID::TLazyField<" + FieldMessageTypeName(descriptor, options) + ">";
+  } else {
+    (*variables)["type"] = FieldMessageTypeName(descriptor, options);
+  }
+\end{lstlisting}
