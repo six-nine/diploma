@@ -9,7 +9,8 @@
 Рассмотрим задачу, описанную в подразделе \ref{sec_problem:sec:problem1}.
 В целях замера производительности опишем тестовое protobuf-сообщение, представленное в листинге \ref{sec_research:code:problem1_proto}.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Тестовое protobuf-сообщение}, label=sec_research:code:problem1_proto]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Тестовое protobuf-сообщение}, label=sec_research:code:problem1_proto]
 syntax = "proto3";
 
 message TBigProto {
@@ -26,11 +27,13 @@ message TBigProto {
     TBigInternalMessage BigInternal3 = 4 [lazy_pack = true];
 }
 \end{lstlisting}
+\end{minipage}
 
 Благодаря полям \textit{StringsArr} и \textit{IntsArr}, поля \textit{BigInternal1}, \textit{BigInternal2} и \textit{BigInternal3} могут иметь достаточно большой вес.
 Сгенерируем тестовые данные. Для этого опишем вспомогательные функции. В листинге \ref{sec_research:code:problem1_generate_big_string} представлена функция \textit{GenerateBigString}, создающая строку, состоящую из \textit{len} случайных строчных латинских символов.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Функция GenerateBigString}, label=sec_research:code:problem1_generate_big_string]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Функция GenerateBigString}, label=sec_research:code:problem1_generate_big_string]
 std::string GenerateBigString(size_t len) {
     std::string res(len, 'a');
     for (size_t i = 0; i < len; i++) {
@@ -40,10 +43,12 @@ std::string GenerateBigString(size_t len) {
     return res;
 }
 \end{lstlisting}
+\end{minipage}
 
 В листинге \ref{sec_research:code:problem1_generate_big_internal_message} представлена функция \textit{GenerateBigInternalMessage}, создающая protobuf-сообщение \textit{TBigProto::TBigInternalMessage}, содержащее массив \textit{StringsArr}, состоящий из \textit{numOfStrings} случайных строк длины \textit{lenOfString} случайных строчных латинских символов, а также массив \textit{IntsArr}, содержащий \textit{numOfInts} случайных чисел от 0 до 500.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Функция GenerateBigInternalMessage}, label=sec_research:code:problem1_generate_big_internal_message]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Функция GenerateBigInternalMessage}, label=sec_research:code:problem1_generate_big_internal_message]
 TBigProto::TBigInternalMessage GenBigInternalMessage(size_t numOfStrings, size_t lenOfString, size_t numOfInts) {
     TBigProto::TBigInternalMessage result;
     for (size_t i = 0; i < numOfStrings; i++) {
@@ -57,10 +62,12 @@ TBigProto::TBigInternalMessage GenBigInternalMessage(size_t numOfStrings, size_t
     return result;
 }
 \end{lstlisting}
+\end{minipage}
 
 В листинге \ref{sec_research:code:problem1_build_test_protos} представлена функция \textit{BuildTestProtos}, которая генерирует запрошенное количество protobuf-сообщений типа \textit{TBigProto} и записывает бинарное представление каждого из них в отдельный файл.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Функция BuildTestProtos}, label=sec_research:code:problem1_build_test_protos]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Функция BuildTestProtos}, label=sec_research:code:problem1_build_test_protos]
 void BuildTestProtos(size_t n, size_t numOfStrings, size_t lenOfString, size_t numOfInts) {
     for (size_t i = 0; i < n; i++) {
         std::ofstream out(TStringBuilder{} << "./serialized/" << i << ".bin");
@@ -73,13 +80,15 @@ void BuildTestProtos(size_t n, size_t numOfStrings, size_t lenOfString, size_t n
     }
 }
 \end{lstlisting}
+\end{minipage}
 
 С помощью функции \textit{BuildTestProtos} были сгенерированы 100 сериализованных protobuf-сообщений. Вес каждого из них в сериализованном виде составил 3.5 мегабайта.
 Рассмотрим функцию для замера производительности \textit{Measure}, представленную в листинге \ref{sec_research:code:problem1_measure}.
 Она занимается поочерёдным открытием файлов с сериализованными сообщениями,
 их десериализацией и проверкой поля \textit{Timestamp}. Если оно попадает в нужные границы, производится доступ к первому элементу массива \textit{IntsArr} поля \textit{BigInternal1}, что в случае <<ленивой>> десериализации должно вызвать распаковку поля \textit{BigInternal1}.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Функция Measure}, label=sec_research:code:problem1_measure]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Функция Measure}, label=sec_research:code:problem1_measure]
 void Measure() {
     for (size_t i = 0; i < 100; i++) {
         std::ifstream in(TStringBuilder{} << "./serialized/" << i << ".bin");
@@ -99,13 +108,14 @@ void Measure() {
     }
 }
 \end{lstlisting}
+\end{minipage}
 
 На рисунке \ref{fig:problem1_vanilla_timings_false_cond} представлена часть замеров в случае неизменённого \textit{protoc}. 
 Данные сообщения не подходили под условия фильтрации, и в этом случае было затрачено около 26 миллисекунд на десериализацию сообщения и ничтожно малое время на проверку условия фильтрации.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_timings_false_cond.png}
+    \includegraphics[width=0.60\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_timings_false_cond.png}
     \caption{Время десериализации одного сообщения в случае неизменённого protoc и невыполнения условия}
     \label{fig:problem1_vanilla_timings_false_cond}
 \end{figure}
@@ -114,18 +124,17 @@ void Measure() {
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_timings_true_cond.png}
+    \includegraphics[width=0.60\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_timings_true_cond.png}
     \caption{Время десериализации одного сообщения в случае неизменённого protoc и выполнения условия}
     \label{fig:problem1_vanilla_timings_true_cond}
 \end{figure}
-
 
 Рассмотрим версию \textit{protoc} с интегрированным модулем <<ленивой>> десериализации.
 На рисунке \ref{fig:problem1_patched_timings_false_cond} представлена часть замеров в случае, когда сообщения не подходили под условия фильтрации. На десериализацию затрачивается в 3 раза меньше времени ~--~ около 9 миллисекунд.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_timings_false_cond.png}
+    \includegraphics[width=0.60\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_timings_false_cond.png}
     \caption{Время десериализации одного сообщения в случае изменённого protoc и невыполнения условия}
     \label{fig:problem1_patched_timings_false_cond}
 \end{figure}
@@ -134,14 +143,15 @@ void Measure() {
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_timings_true_cond.png}
+    \includegraphics[width=0.60\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_timings_true_cond.png}
     \caption{Время десериализации одного сообщения в случае изменённого protoc и выполнении условия}
     \label{fig:problem1_patched_timings_true_cond}
 \end{figure}
 
 Построим флеймграфы для данных алгоритмов. В листинге \ref{sec_research:code:problem1_perf} представлена bash-инструкция, используемая для получения данных с помощью утилиты \textit{perf}.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={bash-инструкция для сбора статистики утилитой perf}, label=sec_research:code:problem1_perf]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={bash-инструкция для сбора статистики утилитой perf}, label=sec_research:code:problem1_perf]
 perf record \
     --call-graph dwarf,10000 \
     -F 250 \
@@ -149,14 +159,17 @@ perf record \
     --proc-map-timeout=10000 -- ./lazyproto_benchmark && \
 perf script > out.perf
 \end{lstlisting}
+\end{minipage}
 
 В листинге \ref{sec_research:code:problem1_fgraph} предсталена команда для формирования флеймграфа по полученной статистике от утилиты \textit{perf}.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={bash-инструкция для сбора статистики утилитой perf}, label=sec_research:code:problem1_fgraph]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={bash-инструкция для сбора статистики утилитой perf}, label=sec_research:code:problem1_fgraph]
 stackcollapse-perf.pl out.perf | \
 c++filt > out.folded && \
 flamegraph.pl out.folded > fgraph.svg
 \end{lstlisting}
+\end{minipage}
 
 На рисунке \ref{fig:problem1_vanilla_fgraph} представлен флеймграф для алгоритма, использующего неизменённую версию \textit{protoc}. 
 Работа с Protocol Buffers занимает 12.8\% от всего времени работы программы.
@@ -187,7 +200,8 @@ flamegraph.pl out.folded > fgraph.svg
 Рассмотрим задачу, описанную в подразделе \ref{sec_problem:sec:problem2}.
 В целях замера производительности опишем тестовое protobuf-сообщение, представленное в листинге \ref{sec_research:code:problem2_proto}.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Тестовое protobuf-сообщение}, label=sec_research:code:problem2_proto]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Тестовое protobuf-сообщение}, label=sec_research:code:problem2_proto]
 syntax = "proto3";
 
 message TBigProto {
@@ -197,18 +211,16 @@ message TBigProto {
     TBigProto BigInternal2 = 4 [lazy_pack = true];
 }
 \end{lstlisting}
+\end{minipage}
 
 Данное сообщение содержит в себе два поля того же типа, что позволяет создать структуру, напоминающую двоичное дерево из вложенных сообщений типа \textit{TBigProto}.
 Таким образом, получится сообщение с большим весом и большой вложенностью.
 В листинге \ref{sec_research:code:problem2_build_big_proto} представлена функция \textit{BuildBigInternalMessage}, которая генерирует protobuf-сообщение большого веса на заданном уровне вложенности.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Функция BuildBigInternalMessage}, label=sec_research:code:problem2_build_big_proto]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Функция BuildBigInternalMessage}, label=sec_research:code:problem2_build_big_proto]
 TBigProto GenBigInternalMessage(
-    size_t numOfStrings,
-    size_t lenOfString,
-    size_t numOfInts,
-    size_t level
-) {
+    size_t numOfStrings, size_t lenOfString, size_t numOfInts, size_t level) {
     TBigProto result;
     for (size_t i = 0; i < numOfStrings; i++) {
         result.MutableStringsArr()->Add(GenerateBigString(lenOfString));
@@ -230,10 +242,12 @@ TBigProto GenBigInternalMessage(
     return result;
 }
 \end{lstlisting}
+\end{minipage}
 
 В листинге \ref{sec_research:code:problem2_build_test_proto} представлена функция \textit{BuildTestProto}, которая генерирует тестовое protobuf-сообщение с заданным уровнем вложенности, используя функцию \textit{GenBigInternalMessage}.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Функция BuildTestProto}, label=sec_research:code:problem2_build_test_proto]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Функция BuildTestProto}, label=sec_research:code:problem2_build_test_proto]
  void BuildTestProto(size_t numOfStrings, size_t lenOfString, size_t numOfInts) {
      std::ofstream out("./serialized/big_recursive.bin");
      TBigProto bigProto;
@@ -241,13 +255,15 @@ TBigProto GenBigInternalMessage(
      out << bigProto.SerializeAsString();
  }
 \end{lstlisting}
+\end{minipage}
 
 С помощью функции \textit{BuildTestProto} было сгенерировано тестовое сериализованное protobuf-сообщение весом 70 мегабайт.
 
 Рассмотрим функцию для замера производительности \textit{Measure}, представленную в листинге \ref{sec_research:code:problem2_measure}.
 Функция читает сериализованное сообщение из файла, парсит его и получает значение на максимальном уровне вложенности.
 
-\begin{lstlisting}[style=CodeListing, captionpos=b, caption={Функция Measure}, label=sec_research:code:problem2_measure]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, caption={Функция Measure}, label=sec_research:code:problem2_measure]
 void Measure() {
     std::ifstream in("./serialized/big_recursive.bin");
     std::string str(std::istreambuf_iterator<char>{in}, {});
@@ -265,6 +281,7 @@ void Measure() {
     Cerr << "Access took " << (TInstant::Now() - start).MicroSeconds() << "mcs\n";
 }
 \end{lstlisting}
+\end{minipage}
 
 На рисунке \ref{fig:problem2_vanilla_timings} представлен замер в случае неизменённого \textit{protoc}.
 Десериализация всего сообщения заняла 582 миллисекунды. Стоит отметить, что при перезапусках теста время имеет небольшой разброс.
