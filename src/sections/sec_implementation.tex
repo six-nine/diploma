@@ -7,22 +7,19 @@
 Процесс кодогенерации в компиляторе \textit{protoc} частично управляется опциями полей.
 Опции указываются после указания номера поля в сообщении, в квадратных скобках в формате <<название опции = значение>>.
 Создание опции начинается с добавления соответствующего поля в proto-сообщение \textit{FieldOptions}.
-Заведём новую опцию \textit{lazy\_pack}, говорящую о том, должно ли данное поле быть десериализовано <<лениво>>:
-\begin{lstlisting}[style=CodeListing]
-
+В листинге \ref{sec_impl:code:lazy_option} представлено заведение новой опции \textit{lazy\_pack} в protobuf-сообщении \textit{FieldOptions}, говорящей о том, должно ли данное поле быть десериализовано <<лениво>>.
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:lazy_option, caption={Добавление поддержки опции lazy\_pack в компилятор}]
 message FieldOptions {
     ...
     optional bool lazy_pack = 16 [default = false];
     ...
 }
-
 \end{lstlisting}
 
 Далее необходимо создать вспомогательные методы, которые будут использоваться в коде для проверки установленности данной опции.
-В листинге \ref{sec_impl:code:is_lazy_pack} представлена реализация данных методов, располагаемых в файле \textit{src/google/protobuf/compiler/cpp/helpers.h}.
+В листинге \ref{sec_impl:code:is_lazy_pack} представлена реализация функции \textit{IsLazyPack}, возвращающей наличие опции \textit{lazy\_pack} у поля.
 
-\begin{lstlisting}[style=CodeListing, label=sec_impl:code:is_lazy_pack, caption={Вспомогательные методы для определения опции lazy\_pack}]
-
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:is_lazy_pack, caption={Функция для определения наличия опции lazy\_pack}]
 bool IsLazyPack(const FieldDescriptor* field, const Options& options,
                 MessageSCCAnalyzer* scc_analyzer) {
   bool res = field->options().lazy_pack();
@@ -31,7 +28,12 @@ bool IsLazyPack(const FieldDescriptor* field, const Options& options,
     "\nOnly message type fields can be marked as [lazy_pack=true]!";
   return res;
 }
+\end{lstlisting}
 
+В листинге \ref{sec_impl:code:has_lazy_pack} представлены две перегрузки функции \textit{HasLazyPackFields}, возвращающей наличие опции \textit{lazy\_pack} у хотя бы одного из полей сообщения.
+
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:has_lazy_pack, caption={Функции для определения опции lazy\_pack у полей сообщения}]
 static bool HasLazyPackFields(const Descriptor* descriptor, const Options& options,
                           MessageSCCAnalyzer* scc_analyzer) {
   for (int field_idx = 0; field_idx < descriptor->field_count(); field_idx++) {
@@ -69,13 +71,14 @@ bool HasLazyPackFields(const FileDescriptor* file, const Options& options,
 }
 
 \end{lstlisting}
+\end{minipage}
 
 \subsection{Arena Allocation}
 
-Выделение памяти в аренах (Arena Allocation) ~--~ это техника оптимизации памяти для protobuf-сообщений, реализованная в Google Protobuf C++. 
+Выделение памяти в аренах (Arena Allocation) ~--~ это техника оптимизации памяти для protobuf-сообщений, реализованная в Googe Protobuf C++. 
 Она заключается в выделении памяти для сообщений и их под-объектов из заранее выделенного блока (арены) вместо кучи.
 Это позволяет снизить накладные расходы на выделение памяти и повысить производительность.
-
+\pagebreak
 Преимуществами такого подхода являются:
 \begin{itemize}
     \item более быстрое выделение и освобождение сообщений ~--~ аренная память выделяется из предварительно выделенного пула, что устраняет необходимость в частом выделении и освобождении данных на куче;
@@ -117,7 +120,7 @@ bool HasLazyPackFields(const FileDescriptor* file, const Options& options,
 
 \begin{lstlisting}[style=CodeListing, label=sec_impl:code:formatter_example, caption={Пример валидации, реализованной в функторе Formatter}]
 Formatter("return array[$1$];", 3) -> "return array[3];"  // Верно
-Formatter("array[$2$] = $1$;", "Bla", 3) -> Ошибка (неправильный порядок)
+Formatter("array[$2$] = $1$;", "Bla", 3) -> Ошибка
 Formatter("array[$1$] = $2$;", 3, "Bla") -> "array[3] = Bla;"  // Верно
 
 Formatter("array[$1$] = $2$; // Index = $1$", 3, "Bla") ->
@@ -129,8 +132,7 @@ Formatter("array[$1$] = $2$; // Index = $1$", 3, "Bla") ->
 Так как в рамках данной работы рассматривается ленивая десериализация вложенных сообщений, реализуемый модуль должен быть наследником класса \textit{MessageLite},
 который содержит в себе поля и методы, представленные в листинге \ref{sec_impl:code:lazy_field_h}:
 
-\begin{lstlisting}[style=CodeListing, label=sec_impl:code:lazy_field_h, caption={Описание класса LazyField}]
-
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:lazy_field_h, caption={Определение класса LazyField}]
 #pragma once
 
 #include "google/protobuf/message.h"
@@ -156,6 +158,9 @@ enum class EBinaryDataType {
     LIST_BUFFERS = 1
 };
 
+\end{lstlisting}
+\pagebreak
+\begin{lstlisting}[style=CodeListing]
 public:
     TLazyField();
     TLazyField(google::protobuf::Arena* arena);
@@ -230,15 +235,15 @@ private:
     \item GetDescriptor() ~--~ возвращает дескриптор сообщения;
     \item GetReflection() ~--~ возвращает объект отражения;
     \item Unpack() const ~--~ вызывает десериализацию хранимого сообщения в бинарном формате, если десериализация ещё не была произведена;
-    \item MergeFrom(const TLazyField<T>\& from) ~--~ сливает данные из другого объекта TLazyField;
+    \item MergeFrom(const TLazyField<T>\& from) ~--~ сливает сообщение с другим;
     \item \_InternalParse(...) ~--~ внутренняя функция, реализующая десериализацию из бинарного представления.
 \end{itemize}
 
 Приватные методы имеют следующее назначение:
 
 \begin{itemize}
-    \item \_InternalSerialize(uint8\_t* ptr, io::EpsCopyOutputStream* stream) const ~--~ Сериализует сообщение.
-    \item GetBinarySize() const ~--~ Возвращает размер хранимых двоичных данных.
+    \item \_InternalSerialize(uint8\_t* ptr, io::EpsCopyOutputStream* stream) const ~--~ сериализует сообщение;
+    \item GetBinarySize() const ~--~ возвращает размер хранимых двоичных данных.
 \end{itemize}
 
 Переменные-члены класса имеют следующее назначение:
@@ -255,11 +260,13 @@ private:
 
 Рассмотрим реализацию некоторых из приведённых методов. 
 
-\subsubsection{} \_InternalParse
+\subsubsection{\_InternalParse}
 
-Данный метод использует необходимую перегрузку самого себя в зависимости от того, откуда распаковываются данные:
+Данный метод использует необходимую перегрузку самого себя в зависимости от того, откуда распаковываются данные.
+Реализация метода приведена в листинге \ref{sec_impl:code:internal_parse}.
 
-\begin{lstlisting}[style=CodeListing]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:internal_parse, caption={Реализация метода \_InternalParse}]
 template<class T>
 const char* TLazyField<T>::_InternalParse(const char* ptr, internal::ParseContext* ctx) {
     if (ctx->IsDerivedFromReleasableBufferStream()) {
@@ -270,12 +277,15 @@ const char* TLazyField<T>::_InternalParse(const char* ptr, internal::ParseContex
     return ptr;
 }
 \end{lstlisting}
+\end{minipage}
 
-\subsubsection{} Unpack
+\subsubsection{Unpack}
 
-Данный метод производит десериализацию сообщения, если она ещё не была произведена:
+Данный метод производит десериализацию сообщения, если она ещё не была произведена.
+Реализация метода приведена в листинге \ref{sec_impl:code:unpack}.
 
-\begin{lstlisting}[style=CodeListing]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:unpack, caption={Реализация метода Unpack}]
 template<class T>
 T* TLazyField<T>::Unpack() const {
     if (!IsUnpacked_) {
@@ -297,12 +307,16 @@ T* TLazyField<T>::Unpack() const {
     return Value_;
 }
 \end{lstlisting}
+\end{minipage}
 
-\subsubsection{} Clear
+\pagebreak
+\subsubsection{Clear}
 
-Данный метод очищает сообщение:
+Данный метод очищает сообщение.
+Реализация метода приведена в листинге \ref{sec_impl:code:clear}.
 
-\begin{lstlisting}[style=CodeListing]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:clear, caption={Реализация метода Clear}]
 template<class T>
 void TLazyField<T>::Clear() {
     IsUnpacked_ = false;
@@ -313,12 +327,15 @@ void TLazyField<T>::Clear() {
     BinarySize_.reset();
 }
 \end{lstlisting}
+\end{minipage}
 
-\subsubsection{} ByteSizeLong
+\subsubsection{ByteSizeLong} 
 
-Данный метод возвращает размер сообщения в байтах. Если сообщение было распаковано, возвращается результат этого же метода в распакованном сообщении, иначе ~--~ размер бинарных данных:
+Данный метод возвращает размер сообщения в байтах. Если сообщение было распаковано, возвращается результат этого же метода в распакованном сообщении, иначе ~--~ размер бинарных данных.
+Реализация метода приведена в листинге \ref{sec_impl:code:byte_size_long}.
 
-\begin{lstlisting}
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:byte_size_long, caption={Реализация метода ByteSizeLong}]
 template<class T>
 size_t TLazyField<T>::ByteSizeLong() const {
     if (!IsUnpacked_) {
@@ -327,12 +344,15 @@ size_t TLazyField<T>::ByteSizeLong() const {
     return Value_->ByteSizeLong();
 }
 \end{lstlisting}
+\end{minipage}
 
-\subsubsection{} MergeFrom
+\subsubsection{MergeFrom}
 
-Данный метод объединяет сообщение с другим сообщением того же типа. При этом производится распаковка обоих сообщений:
+Данный метод объединяет сообщение с другим сообщением того же типа. При этом производится распаковка обоих сообщений.
+Реализация метода приведена в листинге \ref{sec_impl:code:merge_from}.
 
-\begin{lstlisting}[style=CodeListing]
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:merge_from, caption={Реализация метода MergeFrom}]
 template<class T>
 void TLazyField<T>::MergeFrom(const TLazyField<T>& from) {
     if (from.IsUnpacked_) {
@@ -344,48 +364,25 @@ void TLazyField<T>::MergeFrom(const TLazyField<T>& from) {
     }
 }
 \end{lstlisting}
+\end{minipage}
 
-\subsubsection{} GetBinarySize
+\subsection{Внедрение модуля в библиотеку}
 
-Данный метод вычисляет и возвращает размер нераспакованных бинарных данных:
+После реализации модуля необходимо произвести действия по кодогенерации его использования.
+Для начала необходимо включить необходимый заголовок, если в компилируемом сообщении присутствуют поля, помеченные созданной опцией \textit{lazy\_pack}.
+В листинге \ref{sec_impl:code:include_lazy_header} представлена реализация данной проверки и включения.
 
-\begin{lstlisting}[style=CodeListing]
-
-template<class T>
-size_t TLazyField<T>::GetBinarySize() const {
-    if (BinarySize_) {
-        return *BinarySize_;
-    }
-
-    if (BinaryDataType_ == EBinaryDataType::STRING) {
-        BinarySize_ = BinaryData_->size();
-    } else {
-        size_t tmp = 0;
-        for (const auto& buff : BinaryDataList_) {
-            tmp += (buff.size - (buff.start_offset + buff.end_offset));
-        }
-        BinarySize_ = tmp;
-    }
-
-    return *BinarySize_;
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:include_lazy_header, caption={Включение заголовочного файла, если есть поля, помеченные опцией lazy\_pack}]
+if (HasLazyPackFields(file_, options_, &scc_analyzer_)) {
+  GOOGLE_CHECK(options_.opensource_runtime);
+  IncludeFile("net/proto2/public/lazy_packed_field.h", p);
 }
 \end{lstlisting}
 
-\subsection{Внеднение модуля в библиотеку}
+Далее необходимо внести изменения в класс \textit{MessageFieldGenerator}. 
+Так как теперь поле с типом сообщения может быть помечено как \textit{lazy}, следует сохранить это свойство в поле (листинг \ref{sec_impl:code:lazy_flag})
 
-После реализации модуля необходимо произвести действия по кодогенерации его использования.
-Для начала необходимо включить необходимый заголовок, если в компилируемом сообщении присутствуют поля, помеченные созданной опцией \textit{lazy\_pack}:
-
-\begin{lstlisting}
-  if (HasLazyPackFields(file_, options_, &scc_analyzer_)) {
-    GOOGLE_CHECK(options_.opensource_runtime);
-    IncludeFile("net/proto2/public/lazy_packed_field.h", p);
-  }
-\end{lstlisting}
-
-Далее необходимо внести изменения в класс \textit{MessageFieldGenerator}. Так как теперь поле с типом сообщения может быть помечено как \textit{lazy}, следует сохранить это свойство в поле:
-
-\begin{lstlisting}[style=CodeListing]
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:lazy_flag, caption={Добавление поля, сигнализируещего о наличии опции, отвечающей за ленивую десериализацию}]
 class MessageFieldGenerator : public FieldGenerator {
 ...
 protected:
@@ -395,12 +392,13 @@ protected:
 };
 \end{lstlisting}
 
-Если установлена опция, необходимо <<обернуть>> данное сообщение в класс \textit{LazyField}, описанный ранее, с помощью передачи ему шаблонного параметра:
+Если установлена опция, необходимо <<обернуть>> данное сообщение в класс \textit{LazyField}, описанный ранее, с помощью передачи ему шаблонного параметра.
+Данные действия производятся с помощью конструкции, представленной в листинге \ref{sec_impl:code:lazy_wrapper}
 
-\begin{lstlisting}[style=CodeListing]
-  if (IsLazyPack(descriptor, options, nullptr)) {
-    (*variables)["type"] = "::PROTOBUF_NAMESPACE_ID::TLazyField<" + FieldMessageTypeName(descriptor, options) + ">";
-  } else {
-    (*variables)["type"] = FieldMessageTypeName(descriptor, options);
-  }
+\begin{lstlisting}[style=CodeListing, label=sec_impl:code:lazy_wrapper, caption={Использование класса TLazyField в кодогенерации}]
+if (IsLazyPack(descriptor, options, nullptr)) {
+  (*variables)["type"] = "::PROTOBUF_NAMESPACE_ID::TLazyField<" + FieldMessageTypeName(descriptor, options) + ">";
+} else {
+  (*variables)["type"] = FieldMessageTypeName(descriptor, options);
+}
 \end{lstlisting}
