@@ -1,17 +1,15 @@
 #!/usr/bin/python3
 import subprocess
-import sys, platform
+import platform
 import os
 import sysconfig
-import sys
 import argparse
 import webbrowser
 
 
-REPORT_PDF_PATH = f'{os.getcwd()}/src/report.pdf'
+REPORT_PDF_PATH = os.path.join(os.getcwd(), 'src', 'report.pdf')
 
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--open',
                         action="store_true",
@@ -20,7 +18,6 @@ def main():
                         help='Open report.pdf after successfull compilation')
     FLAGS = parser.parse_args()
 
-    print(sys.argv)
     system = platform.system()
 
     compile_cmd = 'make -j4 -C "src" all'
@@ -28,7 +25,7 @@ def main():
     clean_cmd = 'make -C "src" clean'
     
     docker_platform_flag = '--platform linux/amd64' if sysconfig.get_platform().split("-")[-1].lower() == 'arm64' else ''
-    run_docker_cmd = f'docker run {docker_platform_flag} -i --rm -v "{os.getcwd()}:/test" -w /test ajiob/docker-xelatex-fonts:1.2.1'
+    run_docker_cmd = f'docker run {docker_platform_flag} -i --rm -v "{os.getcwd()}:/test" -w /test ghcr.io/fcsan-bsuir/bsuir_tex:main'
 
     shell_and_symbol = ";" if system == "Windows" else "&&"
 

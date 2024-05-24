@@ -19,7 +19,7 @@
 \begin{longtable}{
     | >{\raggedright\arraybackslash}m{0.400\textwidth}
     | >{\raggedright\arraybackslash}m{0.170\textwidth}
-    | >{\raggedright\arraybackslash}m{0.170\textwidth}
+    | >{\raggedright\arraybackslash}m{0.160\textwidth}
     | >{\raggedright\arraybackslash}m{0.170\textwidth}|}
     
     \caption{План проведения научно-исследовательской работы}
@@ -182,7 +182,7 @@
 
 \subsection{Расчёт цены научно-технической продукции}
 
-\subsubsection{} 
+\subsubsection{Расчет затрат на топливно-энергетические ресурсы} 
 Расчет затрат на топливно-энергетические ресурсы представлен в таблице \ref{sec_econom:table:top_energ_res}.
 
 \FPeval{\laptopEnergy}{0.12}
@@ -192,10 +192,10 @@
 
 \begin{longtable}{
     | >{\raggedright\arraybackslash}m{0.370\textwidth}
-    | >{\raggedright\arraybackslash}m{0.141\textwidth}
-    | >{\raggedright\arraybackslash}m{0.141\textwidth}
-    | >{\raggedright\arraybackslash}m{0.141\textwidth}
-    | >{\raggedright\arraybackslash}m{0.141\textwidth}|}
+    | >{\raggedright\arraybackslash}m{0.130\textwidth}
+    | >{\raggedright\arraybackslash}m{0.130\textwidth}
+    | >{\raggedright\arraybackslash}m{0.120\textwidth}
+    | >{\raggedright\arraybackslash}m{0.120\textwidth}|}
     
     \caption{Расчет затрат на топливно-энергетические ресурсы}
     \label{sec_econom:table:top_energ_res} \\
@@ -232,16 +232,16 @@
     \hline
 \end{longtable}
 
-\subsubsection{}
+\subsubsection{Расчёт затрат по статье <<Спецоборудование для научных (экспериментальных) работ>>}
 Расчёт затрат по статье <<Спецоборудование для научных (экспериментальных) работ>> представлен в таблице \ref{sec_econom:table:equipment}.
 
 \FPeval{\laptopPrice}{10590.00}
 
 \begin{longtable}{
     | >{\raggedright\arraybackslash}m{0.500\textwidth}
-    | >{\raggedright\arraybackslash}m{0.138\textwidth}
-    | >{\raggedright\arraybackslash}m{0.138\textwidth}
-    | >{\raggedright\arraybackslash}m{0.138\textwidth}|}
+    | >{\raggedright\arraybackslash}m{0.130\textwidth}
+    | >{\raggedright\arraybackslash}m{0.130\textwidth}
+    | >{\raggedright\arraybackslash}m{0.130\textwidth}|}
     
     \caption{Расчет затрат на спецоборудование}
     \label{sec_econom:table:equipment} \\
@@ -275,25 +275,22 @@
     \hline
 \end{longtable}
 
-\subsubsection{}
-Расчет затрат на основную заработную плату разработчиков
+\subsubsection{Расчет затрат на основную заработную плату разработчиков}
 
-Для расчета заработной платы используем формулу \ref{sec_econom:eq:main_salary}:
+Для расчета заработной платы используем формулу \eqref{sec_econom:eq:main_salary}:
 \begin{equation}
     \label{sec_econom:eq:main_salary}
-    \text{З}_{\text{о}} = \text{К}_{\text{пр}} \sum_{i = 1}^{n} \text{З}_{\text{ч.i}} \times t_i \text{\,,}
+    \text{З}_{\text{о}} = \text{К}_{\text{пр}} \sum_{i = 1}^{n} \text{З}_{\text{ч.}i} \times t_i \text{\,,}
 \end{equation}
 \begin{explanationx}
 \item [где] $ n $ --- количество исполнителей, занятых разработкой ПО;
 \item       $ \text{К}_{\text{пр}} $ --- коэффициент, учитывающий процент премий;
-\item       $ \text{З}_{\text{ч.i}} $ --- часовая заработная плата i-го исполнителя, р.;
+\item       $ \text{З}_{\text{ч.}i} $ --- часовая заработная плата i-го исполнителя, р.;
 \item       $ t_i $ --- трудоемкость работ, выполняемых i-м исполнителем, ч.
 \end{explanationx}
 
-
 Размер месячной заработной платы исполнителя каждой категории соответствует сложившемуся на рынке труда размеру заработной платы для категорий работников, участвующих в разработке.
 Часовая заработная плата рассчитывалась путем деления месячной заработной платы на 168 рабочих часов в месяце. Размер премии был выбран равным 40\% от размера заработной платы. Расчет затрат на основную заработную плату представлен в таблице \ref{sec_econom:table:main_salary}.
-
 
 \FPeval{\programmerSalary}{2900}
 \FPeval{\workHoursPerMonth}{168}
@@ -386,10 +383,9 @@
 \end{longtable}
 
 
-\subsubsection{}
-Расчет затрат на дополнительную заработную плату разработчиков
+\subsubsection{Расчет затрат на дополнительную заработную плату разработчиков}
 
-Расчет дополнительных выплат, предусмотренных законодательством о труде, осуществляем по формуле \ref{sec_econom:eq:additional_salary}:
+Расчет дополнительных выплат, предусмотренных законодательством о труде, осуществляем по формуле \eqref{sec_econom:eq:additional_salary}:
 
 \begin{equation}
     \label{sec_econom:eq:additional_salary}
@@ -409,9 +405,9 @@
     \text{З}_{\text{д}} = \frac{\text{З}_{\text{о}} \times \text{Н}_{\text{д}}}{100} = \frac{\commonMainSalaryWithBonus \times \additionalSalaryPercents}{100} = \additionalSalary \text{ р.}
 \end{equation*}
 
-\subsubsection{ } Расчет отчислений на социальные нужды
+\subsubsection{Расчет отчислений на социальные нужды} 
 
-Отчисления на социальные нужны рассчитаем по формуле \ref{sec_econom:eq:social_payments}:
+Отчисления на социальные нужны рассчитаем по формуле \eqref{sec_econom:eq:social_payments}:
 
 \begin{equation}
     \label{sec_econom:eq:social_payments}
@@ -428,9 +424,9 @@
     \text{Р}_{\text{соц}} = \frac{ (\text{З}_{\text{о}} + \text{З}_{\text{д}}) \times \text{Н}_{\text{соц}} }{100} = \frac{ (\commonMainSalaryWithBonus + \additionalSalary) \times \socialPaymentsPercent }{100} = \socialPayments \text{ р.}
 \end{equation*}
 
-\subsubsection{ } Расчет накладных расходов
+\subsubsection{Расчет накладных расходов} 
 
-Накладные расходы рассчитаем по формуле \ref{sec_econom:eq:overhead}:
+Накладные расходы рассчитаем по формуле \eqref{sec_econom:eq:overhead}:
 
 \begin{equation}
     \label{sec_econom:eq:overhead}
@@ -447,9 +443,9 @@
     \text{Р}_{\text{н}} = \frac{ \text{З}_{\text{о}} \times \text{Н}_{\text{н}} }{100} = \frac{ \commonMainSalaryWithBonus \times \overheadPercent}{100} = \overhead \text{ р.}
 \end{equation*}
 
-\subsubsection{} Расчет полной себестоимости
+\subsubsection{Расчет полной себестоимости} 
 
-Полную себестоимость научно-исследовательской работы $ \text{С}_{\text{п}} $ рассчитаем по формуле \ref{sec_econom:eq:full_payment}:
+Полную себестоимость научно-исследовательской работы $ \text{С}_{\text{п}} $ рассчитаем по формуле \eqref{sec_econom:eq:full_payment}:
 \begin{equation}
     \label{sec_econom:eq:full_payment}
     \text{С}_{\text{п}} = \text{З}_{\text{тэр}} + \text{З}_{\text{со}} + \text{З}_{\text{о}} + \text{З}_{\text{д}} + \text{Р}_{\text{соц}} + \text{Р}_{\text{н}} \text{\,,}
@@ -469,9 +465,9 @@
 \end{equation*}
 
 
-\subsubsection{} Расчет плановой прибыли 
+\subsubsection{Расчет плановой прибыли}
 
-Плановая прибыль $ \text{П} $ научно-исследовательской работы определяется по формуле \ref{sec_econom:eq:plan_income}:
+Плановая прибыль $ \text{П} $ научно-исследовательской работы определяется по формуле \eqref{sec_econom:eq:plan_income}:
 
 \begin{equation}
     \label{sec_econom:eq:plan_income}
@@ -489,9 +485,9 @@
 \end{equation*}
 
 
-\subsubsection{} Расчет сметной стоимости научно-технической продукции
+\subsubsection{Расчет сметной стоимости научно-технической продукции}
 
-Сметная стоимость научно-технической продукции $ \text{Ц}_{\text{н.т.п}} $ вычисляется с помощью формулы \ref{sec_econom:eq:smet_price}
+Сметная стоимость научно-технической продукции $ \text{Ц}_{\text{н.т.п}} $ вычисляется с помощью формулы \eqref{sec_econom:eq:smet_price}
 \begin{equation}
     \label{sec_econom:eq:smet_price}
     \text{Ц}_{\text{н.т.п.}} = \text{С}_{\text{п}} + \text{П} \text{\,,}
@@ -500,12 +496,12 @@
 Сметная стоимость научно-технической продукции составила:
 \FPeval{\smetPrice}{trunc(\fullPayment + \planIncome, 2)}
 \begin{equation*}
-    \text{Ц}_{\text{н.т.п.}} = \text{С}_{\text{п}} + \text{П} = \fullPayment + \planIncome = \smetPrice \text{ р.} \text{\,,}
+    \text{Ц}_{\text{н.т.п.}} = \text{С}_{\text{п}} + \text{П} = \fullPayment + \planIncome = \smetPrice \text{ р.}
 \end{equation*}
 
 \subsection{Расчёт уровня качества научно-технического результата}
 
-Количественная оценка уровня качества научно-технического результата, полученного в дипломной работе, рассчитывается по формуле \ref{sec_econom:eq:diploma_level}
+Количественная оценка уровня качества научно-технического результата, полученного в дипломной работе, рассчитывается по формуле \eqref{sec_econom:eq:diploma_level}
 \begin{equation}
     \label{sec_econom:eq:diploma_level}
     \text{К}_{\text{к}} = \sum_{i=1}^{n} \text{К}_{\text{нз}i} \times \text{Б}_{\text{д}i} \text{\,,}

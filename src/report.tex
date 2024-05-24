@@ -1,10 +1,20 @@
 \input{../bsuir_tex/preamble}
-
+ 
 \begin{document}
-
+ 
 \pagestyle{empty}
 
 \input{title}
+
+\pagestyle{empty}
+\input{abstract}
+
+\pagestyle{empty}
+\input{dictionary}
+
+\includepdf[pages={-}]{pdf/task.pdf}
+
+\setcounter{page}{5}
 
 \input{table_of_contents}
 
@@ -14,6 +24,8 @@
 
 \input{references}
 
-%\input{annexes}
+\input{annexes}
+
+\includepdf[pages={-}]{pdf/vedomost.pdf}
 
 \end{document}
