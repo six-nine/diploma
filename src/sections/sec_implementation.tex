@@ -315,7 +315,6 @@ T* TLazyField<T>::Unpack() const {
 Данный метод очищает сообщение.
 Реализация метода приведена в листинге \ref{sec_impl:code:clear}.
 
-\noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[style=CodeListing, label=sec_impl:code:clear, caption={Реализация метода Clear}]
 template<class T>
 void TLazyField<T>::Clear() {
@@ -327,8 +326,7 @@ void TLazyField<T>::Clear() {
     BinarySize_.reset();
 }
 \end{lstlisting}
-\end{minipage}
-
+\vspace{-1em}
 \subsubsection{ByteSizeLong} 
 
 Данный метод возвращает размер сообщения в байтах. Если сообщение было распаковано, возвращается результат этого же метода в распакованном сообщении, иначе ~--~ размер бинарных данных.

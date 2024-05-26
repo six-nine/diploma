@@ -287,7 +287,7 @@ perf report
 \end{lstlisting}
 
 Команда \textit{perf record} представляет отчёт, пример которого приведён на рисунке \ref{sec_technologies:fig:perf_report_example}.
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{\commonSecPathPrefix/sec_technologies_attachments/perf_report_example.png}
     \caption{Отчёт утилиты perf о работе команды sleep}
@@ -325,7 +325,7 @@ perf record --call-graph <method> <program>
 Затем древовидная структура преобразуется в набор блоков, налагаемых друг на друга в соответствии с их отношениями. Результат этих операций называется флеймграфом.
 На рисунке \ref{sec_tech:fig:flamegraph_tree} представлен пример представления стека вызовов программы в виде древовидной структуры.
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{\commonSecPathPrefix/sec_technologies_attachments/call_stack_tree_example.png}
     \caption{Пример представления стека вызовов программы в виде дерева}
@@ -334,7 +334,7 @@ perf record --call-graph <method> <program>
 
 На рисунке \ref{sec_tech:fig:flamegraph_example_from_tree} представлен флеймграф, построенный на основе дерева на рисунке \ref{sec_tech:fig:flamegraph_tree}.
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.85\linewidth]{\commonSecPathPrefix/sec_technologies_attachments/call_stack_flame_example.png}
     \caption{Пример представления стека вызовов в виде простейшего флеймграфа}

@@ -282,38 +282,39 @@
     \label{sec_econom:eq:main_salary}
     \text{З}_{\text{о}} = \text{К}_{\text{пр}} \sum_{i = 1}^{n} \text{З}_{\text{ч.}i} \times t_i \text{\,,}
 \end{equation}
-\begin{explanationx}
-\item [где] $ n $ --- количество исполнителей, занятых разработкой ПО;
-\item       $ \text{К}_{\text{пр}} $ --- коэффициент, учитывающий процент премий;
-\item       $ \text{З}_{\text{ч.}i} $ --- часовая заработная плата i-го исполнителя, р.;
-\item       $ t_i $ --- трудоемкость работ, выполняемых i-м исполнителем, ч.
-\end{explanationx}
+\begin{explanation}
+где & $ n $ & количество исполнителей, занятых разработкой ПО; \\
+    & $ \text{К}_{\text{пр}} $ & коэффициент, учитывающий процент премий; \\
+    & $ \text{З}_{\text{ч.}i} $ & часовая заработная плата i-го исполнителя, р.; \\
+    & $ t_i $ & трудоемкость работ, выполняемых i-м исполнителем, ч.
+\end{explanation}
 
+% \begin{explanationx}
+% \item [где] $ n $ --- количество исполнителей, занятых разработкой ПО;
+% \item       $ \text{К}_{\text{пр}} $ --- коэффициент, учитывающий процент премий;
+% \item       $ \text{З}_{\text{ч.}i} $ --- часовая заработная плата i-го исполнителя, р.;
+% \item       $ t_i $ --- трудоемкость работ, выполняемых i-м исполнителем, ч.
+% \end{explanationx}
 Размер месячной заработной платы исполнителя каждой категории соответствует сложившемуся на рынке труда размеру заработной платы для категорий работников, участвующих в разработке\cite{programmer_salaries}.
 Часовая заработная плата рассчитывалась путем деления месячной заработной платы на 168 рабочих часов в месяце. Размер премии был выбран равным 40\% от размера заработной платы. Расчет затрат на основную заработную плату представлен в таблице \ref{sec_econom:table:main_salary}.
-
 \FPeval{\programmerSalary}{2900}
 \FPeval{\workHoursPerMonth}{168}
 \FPeval{\workDaysPerMonth}{21}
 \FPeval{\programmerSalaryByDay}{trunc(\programmerSalary / \workDaysPerMonth, 2)}
 \FPeval{\programmerWorkDays}{75}
 \FPeval{\programmerMainSalary}{trunc(\programmerSalaryByDay * \programmerWorkDays, 2)}
-
 \FPeval{\techLeadSalary}{5800}
 \FPeval{\techLeadSalaryByDay}{trunc(\techLeadSalary / \workDaysPerMonth, 2)}
 \FPeval{\techLeadWorkDays}{5}
 \FPeval{\techLeadMainSalary}{trunc(\techLeadSalaryByDay * \techLeadWorkDays, 2)}
-
 \FPeval{\economSalary}{2000}
 \FPeval{\economSalaryByDay}{trunc(\economSalary / \workDaysPerMonth, 2)}
 \FPeval{\economWorkDays}{2}
 \FPeval{\economMainSalary}{trunc(\economSalaryByDay * \economWorkDays, 2)}
-
 \FPeval{\commonMainSalary}{trunc(\techLeadMainSalary + \programmerMainSalary + \economMainSalary, 2)}
 \FPeval{\bonusPercents}{40}
 \FPeval{\bonusSize}{trunc(\commonMainSalary * \bonusPercents / 100, 2)}
 \FPeval{\commonMainSalaryWithBonus}{trunc(\commonMainSalary + \bonusSize, 2)}
-
 \begin{longtable}{
     | >{\raggedright\arraybackslash}m{0.350\textwidth}
     | >{\raggedright\arraybackslash}m{0.13\textwidth}
@@ -391,13 +392,17 @@
     \label{sec_econom:eq:additional_salary}
     \text{З}_{\text{д}} = \frac{\text{З}_{\text{о}} \times \text{Н}_{\text{д}}}{100} \text{\,,}
 \end{equation}
-\begin{explanationx}
-\item [где] $ \text{З}_{\text{о}} $ --- затраты на основную заработную плату, р.;
-\item       $ \text{Н}_{\text{д}} $ --- норматив дополнительной заработной платы.
-\end{explanationx}
+\begin{explanation}
+где & $ \text{З}_{\text{о}} $ & затраты на основную заработную плату, р.; \\
+    & $ \text{Н}_{\text{д}} $ & норматив дополнительной заработной платы.
+\end{explanation}
 
+% \begin{explanationx}
+% \item [где] $ \text{З}_{\text{о}} $ --- затраты на основную заработную плату, р.;
+% \item       $ \text{Н}_{\text{д}} $ --- норматив дополнительной заработной платы.
+% \end{explanationx}
 \FPeval{\additionalSalaryPercents}{15}
-Норматив дополнительной заработной платы был принят равным \additionalSalaryPercents\%. Размер дополнительной заработной составил:
+Норматив дополнительной заработной платы был принят равным \additionalSalaryPercents\%. Размер дополнительной заработной платы составил:
 
 \FPeval{\additionalSalary}{trunc(\commonMainSalaryWithBonus * \additionalSalaryPercents / 100, 2)}
 
@@ -413,10 +418,13 @@
     \label{sec_econom:eq:social_payments}
     \text{Р}_{\text{соц}} = \frac{ (\text{З}_{\text{о}} + \text{З}_{\text{д}}) \times \text{Н}_{\text{соц}} }{100} \text{\,,}
 \end{equation}
-\begin{explanationx}
-\item [где] $ \text{Н}_{\text{соц}} $ --- норматив отчислений от фонда оплаты труда.
-\end{explanationx}
+\begin{explanation}
+где & $ \text{Н}_{\text{соц}} $ & норматив отчислений от фонда оплаты труда.
+\end{explanation}
 
+% \begin{explanationx}
+% \item [где] $ \text{Н}_{\text{соц}} $ --- норматив отчислений от фонда оплаты труда.
+% \end{explanationx}
 \FPeval{\socialPaymentsPercent}{35}
 Норматив отчислений от фонда оплаты труда был принят равным \socialPaymentsPercent\%. Размер отчислений на социальные нужны составил:
 \FPeval{\socialPayments}{trunc((\commonMainSalaryWithBonus + \additionalSalary) * \socialPaymentsPercent / 100, 2)}
@@ -432,10 +440,13 @@
     \label{sec_econom:eq:overhead}
     \text{Р}_{\text{н}} = \frac{ \text{З}_{\text{о}} \times \text{Н}_{\text{н}} }{100} \text{\,,}
 \end{equation}
-\begin{explanationx}
-\item [где] $ \text{Н}_{\text{н}} $ --- норматив накладных расходов.
-\end{explanationx}
+\begin{explanation}
+где & $ \text{Н}_{\text{н}} $ & норматив накладных расходов.
+\end{explanation}
 
+% \begin{explanationx}
+% \item [где] $ \text{Н}_{\text{н}} $ --- норматив накладных расходов.
+% \end{explanationx}
 \FPeval{\overheadPercent}{60}
 Норматив накладных расходов был принят равным \overheadPercent\%. Размер накладных расходов составил:
 \FPeval{\overhead}{trunc(\commonMainSalaryWithBonus * \overheadPercent / 100, 2)}
@@ -450,20 +461,24 @@
     \label{sec_econom:eq:full_payment}
     \text{С}_{\text{п}} = \text{З}_{\text{тэр}} + \text{З}_{\text{со}} + \text{З}_{\text{о}} + \text{З}_{\text{д}} + \text{Р}_{\text{соц}} + \text{Р}_{\text{н}} \text{\,,}
 \end{equation}
-\begin{explanationx}
-\item [где] $ \text{З}_{\text{тэр}} $ --- затраты на топливно-энергетические ресуры, приведённые в таблице \ref{sec_econom:table:top_energ_res};
-\item       $ \text{З}_{\text{со}} $ --- затраты на спецооборудование, приведенные в таблице \ref{sec_econom:table:equipment}.
-\end{explanationx}
+\begin{explanation}
+где & $ \text{З}_{\text{тэр}} $ & затраты на топливно-энергетические ресуры, приведённые в таблице \ref{sec_econom:table:top_energ_res}; \\
+    & $ \text{З}_{\text{со}} $ & затраты на спецооборудование, приведенные в таблице \ref{sec_econom:table:equipment}.
+\end{explanation}
 
+% \begin{explanationx}
+% \item [где] $ \text{З}_{\text{тэр}} $ --- затраты на топливно-энергетические ресуры, приведённые в таблице \ref{sec_econom:table:top_energ_res};
+% \item       $ \text{З}_{\text{со}} $ --- затраты на спецооборудование, приведенные в таблице \ref{sec_econom:table:equipment}.
+% \end{explanationx}
 Полная себестоимость научно-исследовательской работы составила:
 \FPeval{\fullPayment}{trunc(\electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments + \overhead, 2)}
 \begin{equation*}
     \begin{gathered}
         \text{С}_{\text{п}} = \text{З}_{\text{тэр}} + \text{З}_{\text{со}} + \text{З}_{\text{о}} + \text{З}_{\text{д}} + \text{Р}_{\text{соц}} + \text{Р}_{\text{н}} = \\
-        = \electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments + \overhead = \fullPayment \text{ р.}
+        = \electricitySumm + \laptopPrice + \commonMainSalaryWithBonus + \additionalSalary + \socialPayments + \overhead = \\
+        = \fullPayment \text{ р.}
     \end{gathered}
 \end{equation*}
-
 
 \subsubsection{Расчет плановой прибыли}
 
@@ -473,10 +488,13 @@
     \label{sec_econom:eq:plan_income}
     \text{П} = \frac{\text{С}_{\text{п}} \times \text{Р}_{\text{н.т.п.}}}{100} \text{\,,}
 \end{equation}
-\begin{explanationx}
-\item [где] $ \text{Р}_{\text{н.т.п.}} $ --- рентабельность научно-технической продукции.
-\end{explanationx}
+\begin{explanation}
+где & $ \text{Р}_{\text{н.т.п.}} $ & рентабельность научно-технической продукции.
+\end{explanation}
 
+% \begin{explanationx}
+% \item [где] $ \text{Р}_{\text{н.т.п.}} $ --- рентабельность научно-технической продукции.
+% \end{explanationx}
 \FPeval{\profitability}{20}
 \FPeval{\planIncome}{trunc(\fullPayment * \profitability / 100, 2)}
 Принимая рентабельность научно-технической продукции равной \profitability\%, плановая прибыль составит:
@@ -492,7 +510,6 @@
     \label{sec_econom:eq:smet_price}
     \text{Ц}_{\text{н.т.п.}} = \text{С}_{\text{п}} + \text{П} \text{\,,}
 \end{equation}
-
 Сметная стоимость научно-технической продукции составила:
 \FPeval{\smetPrice}{trunc(\fullPayment + \planIncome, 2)}
 \begin{equation*}
@@ -506,30 +523,29 @@
     \label{sec_econom:eq:diploma_level}
     \text{К}_{\text{к}} = \sum_{i=1}^{n} \text{К}_{\text{нз}i} \times \text{Б}_{\text{д}i} \text{\,,}
 \end{equation}
-\begin{explanationx}
-\item [где] $ \text{К}_{\text{к}} $ --- комплексный показатель достигнутого уровня результата выполненных исследований;
-\item       $ \text{К}_{\text{нз}i} $ --- нормированный коэффициент значимости i-го критерия, используемого для оценки;
-\item       $ \text{Б}_{\text{д}i} $ --- достигнутый уровень по i-му критерию;
-\item       $ n $ --- количество критериев научно-технической прогрессивности и полезности результатов, полученных в дипломной работе.
-\end{explanationx}
-
+\begin{explanation}
+где & $ \text{К}_{\text{к}} $ & комплексный показатель достигнутого уровня результата выполненных исследований; \\
+    & $ \text{К}_{\text{нз}i} $ & нормированный коэффициент значимости i-го критерия, используемого для оценки; \\
+    & $ \text{Б}_{\text{д}i} $ & достигнутый уровень по i-му критерию; \\ 
+    & $ n $ & количество критериев научно-технической прогрессивности и полезности результатов, полученных в дипломной работе.
+\end{explanation}
+% \begin{explanationx}
+% \item [где] $ \text{К}_{\text{к}} $ --- комплексный показатель достигнутого уровня результата выполненных исследований;
+% \item       $ \text{К}_{\text{нз}i} $ --- нормированный коэффициент значимости i-го критерия, используемого для оценки;
+% \item       $ \text{Б}_{\text{д}i} $ --- достигнутый уровень по i-му критерию;
+% \item       $ n $ --- количество критериев научно-технической прогрессивности и полезности результатов, полученных в дипломной работе.
+% \end{explanationx}
 Расчет уровня качества производится с использованием различных критериев. Далее будут использованы следующие из них: новизна, значимость для науки и практики, объективность, доказательность, точность. Каждому критерию дается характеристика и уровень в баллах (от 1 до 5). Чем выше балл, тем выше результат исследований по критерию. Осуществляется оценка значимости каждого из критериев. Полученные оценки значимости нормируются, чтобы сумма всех нормированных коэффициентов значимости $\text{К}_{\text{н.з}i} $ i-го критерия была равна единице. Характеристика критериев и оценка достигнутых результатов приведены в таблице \ref{sec_econom:table:criterias}.
-
 \FPeval{\newnessRate}{4}
 \FPeval{\newnessRatio}{0.2}
-
 \FPeval{\importancyRate}{3}
 \FPeval{\importancyRatio}{0.4}
-
 \FPeval{\objectivityRate}{2}
 \FPeval{\objectivityRatio}{0.05}
-
 \FPeval{\provenessRate}{3}
 \FPeval{\provenessRatio}{0.2}
-
 \FPeval{\accuracyRate}{4}
 \FPeval{\accuracyRatio}{0.15}
-
 \begin{longtable}{
     | >{\raggedright\arraybackslash}m{0.400\textwidth}
     | >{\raggedright\arraybackslash}m{0.257\textwidth}
