@@ -193,7 +193,7 @@ Consider tweaking /proc/sys/kernel/perf_event_paranoid:
   1 - Disallow cpu events for unpriv
   2 - Disallow kernel profiling for unpriv
 \end{lstlisting}
-
+\vspace{-1em}
 \begin{lstlisting}[style=CodeListing, label=sec_tech:code:perf_err2, caption={Второй вариант ошибки, встречающейся после установки утилиты}]
 Error:
 Access to performance monitoring and observability operations is limited.
@@ -249,10 +249,10 @@ sudo sysctl -p
 
 Существует несколько распространенных способов использования perf. 
 Первый из них ~--~ получить простое грубое представление о том, как программа использует аппаратные ресурсы.
-В листинге \ref{} представлен пример получения такого отчёта для команды \textit{ls}.
+В листинге \ref{sec_tech:code:perf_stat} представлен пример получения такого отчёта для команды \textit{ls}.
 
 \pagebreak
-\begin{lstlisting}[style=CodeListing, label=sec_tech:code:pref_stat, caption={Пример использования команды perf stat}]
+\begin{lstlisting}[style=CodeListing, label=sec_tech:code:perf_stat, caption={Пример использования команды perf stat}]
 \$> perf stat ls
 
 <stdout>
@@ -279,7 +279,7 @@ Copy
 а также процентного соотношения времени, затрачиваемого на каждую инструкцию в этих функциях, что позволяет 
 получить точное представление об использовании процессорных ресурсов узким местом времени выполнения программы. Для этого
 достаточно выполнить команду \textit{perf record}, чтобы утилита начала отслеживать выполнение, а после завершения работы программы
-вызвать \textit{perf report}, как продемонстрировано в листинге \ref{}
+вызвать \textit{perf report}, как продемонстрировано в листинге \ref{sec_tech:code:perf_record_report}
 
 \begin{lstlisting}[style=CodeListing, label=sec_tech:code:perf_record_report, caption={Пример использования команд perf record и perf report}]
 perf record <program>
@@ -311,7 +311,6 @@ perf record --call-graph <method> <program>
     \item dwarf ~--~ наиболее детальный метод трассировки. Может порождать файлы наблюдений, достигающие размеров в 10 гигабайт за минуту наблюдений. Сильно влияет на производительность исследуемого приложения.
 \end{enumerate}
 
-\pagebreak
 Флеймграф (Flamegraph) ~--~ это инструмент визуализации результатов профилирующих утилит. Он представляет собой древовидную диаграмму, где каждый узел представляет собой функцию, а его ширина пропорциональна времени, затрачиваемому на выполнение этой функции. Флеймграфы позволяют разработчикам быстро и легко определить, какие части кода занимают больше всего времени, что помогает им оптимизировать производительность приложения.
 
 Флеймграфы были впервые представлены в статье 2004 года <<Visualizing Performance with Flame Graphs>> авторства Б. Л. Коллинза. 
@@ -348,6 +347,7 @@ perf record --call-graph <method> <program>
 Они позволяют получить полное представление о вычислительных ресурсах и их использовании на одной панели. 
 Когда что-то идет не так, вы можете быстро определить разницу между идеальным <<эффективным>> состоянием и ошибочным <<неэффективным>> состоянием.
 
+\pagebreak
 Построение флеймграфа состоит из трёх шагов:
 \begin{enumerate}
     \item Сбор системных событий (в том числе с помощью рассмотренной ранее утилиты \textit{perf}).

@@ -14,14 +14,11 @@
 syntax = "proto3";
 
 message TBigProto {
-
     message TBigInternalMessage {
         repeated string StringsArr = 1;
         repeated int32 IntsArr = 2;
     }
-
     int32 Timestamp = 1;
-
     TBigInternalMessage BigInternal1 = 2 [lazy_pack = true];
     TBigInternalMessage BigInternal2 = 3 [lazy_pack = true];
     TBigInternalMessage BigInternal3 = 4 [lazy_pack = true];
@@ -30,7 +27,9 @@ message TBigProto {
 \end{minipage}
 
 Благодаря полям \textit{StringsArr} и \textit{IntsArr}, поля \textit{BigInternal1}, \textit{BigInternal2} и \textit{BigInternal3} могут иметь достаточно большой вес.
-Сгенерируем тестовые данные. Для этого опишем вспомогательные функции. В листинге \ref{sec_research:code:problem1_generate_big_string} представлена функция \textit{GenerateBigString}, создающая строку, состоящую из \textit{len} случайных строчных латинских символов.
+Сгенерируем тестовые данные. 
+%Для этого опишем вспомогательные функции.
+В листинге \ref{sec_research:code:problem1_generate_big_string} представлена функция \textit{GenerateBigString}, создающая строку, состоящую из \textit{len} случайных строчных латинских символов.
 
 \noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[style=CodeListing, caption={Функция GenerateBigString}, label=sec_research:code:problem1_generate_big_string]
@@ -54,11 +53,9 @@ TBigProto::TBigInternalMessage GenBigInternalMessage(size_t numOfStrings, size_t
     for (size_t i = 0; i < numOfStrings; i++) {
         result.MutableStringsArr()->Add(GenerateBigString(lenOfString));
     }
-
     for (size_t i = 0; i < numOfInts; i++) {
         result.MutableIntsArr()->Add(rand() % 500);
     }
-
     return result;
 }
 \end{lstlisting}
@@ -75,7 +72,6 @@ void BuildTestProtos(size_t n, size_t numOfStrings, size_t lenOfString, size_t n
         bigProto.SetTimestamp(i);
         bigProto.MutablebigInternal1()->CopyFrom(GenBigInternalMessage(numOfStrings, lenOfString, numOfInts));
         bigProto.MutablebigInternal2()->CopyFrom(GenBigInternalMessage(numOfStrings, lenOfString, numOfInts));
-        bigProto.MutablebigInternal3()->CopyFrom(GenBigInternalMessage(numOfStrings, lenOfString, numOfInts));
         out << bigProto.SerializeAsString();
     }
 }
@@ -113,18 +109,19 @@ void Measure() {
 На рисунке \ref{fig:problem1_vanilla_timings_false_cond} представлена часть замеров в случае неизменённого \textit{protoc}. 
 Данные сообщения не подходили под условия фильтрации, и в этом случае было затрачено около 26 миллисекунд на десериализацию сообщения и ничтожно малое время на проверку условия фильтрации.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.60\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_timings_false_cond.png}
+    \includegraphics[width=0.40\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_timings_false_cond.png}
     \caption{Время десериализации одного сообщения в случае неизменённого protoc и невыполнения условия}
     \label{fig:problem1_vanilla_timings_false_cond}
 \end{figure}
 
+\pagebreak
 На рисунке \ref{fig:problem1_vanilla_timings_true_cond} представлена часть замеров в случае неизменённого \textit{protoc}, однако данные сообщения подходили под условия фильтрации. В этом случае времязатраты практически не изменились.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.60\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_timings_true_cond.png}
+    \includegraphics[width=0.50\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_timings_true_cond.png}
     \caption{Время десериализации одного сообщения в случае неизменённого protoc и выполнения условия}
     \label{fig:problem1_vanilla_timings_true_cond}
 \end{figure}
@@ -132,18 +129,18 @@ void Measure() {
 Рассмотрим версию \textit{protoc} с интегрированным модулем <<ленивой>> десериализации.
 На рисунке \ref{fig:problem1_patched_timings_false_cond} представлена часть замеров в случае, когда сообщения не подходили под условия фильтрации. На десериализацию затрачивается в 3 раза меньше времени ~--~ около 9 миллисекунд.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.60\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_timings_false_cond.png}
+    \includegraphics[width=0.40\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_timings_false_cond.png}
     \caption{Время десериализации одного сообщения в случае изменённого protoc и невыполнения условия}
     \label{fig:problem1_patched_timings_false_cond}
 \end{figure}
 
 На рисунке \ref{fig:problem1_patched_timings_true_cond} представлена часть замеров в случае, когда сообщения подходили под условия фильтрации. В этом случае времязатраты на первичную десериализацию остались прежними, однако доступ к <<ленивому>> полю породил ещё одну десериализацию, в среднем занимающую около 8 миллисекунд. 
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.60\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_timings_true_cond.png}
+    \includegraphics[width=0.50\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_timings_true_cond.png}
     \caption{Время десериализации одного сообщения в случае изменённого protoc и выполнении условия}
     \label{fig:problem1_patched_timings_true_cond}
 \end{figure}
@@ -174,17 +171,18 @@ flamegraph.pl out.folded > fgraph.svg
 На рисунке \ref{fig:problem1_vanilla_fgraph} представлен флеймграф для алгоритма, использующего неизменённую версию \textit{protoc}. 
 Работа с Protocol Buffers занимает 12.8\% от всего времени работы программы.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_vanilla_fgraph.png}
     \caption{Флеймграф алгоритма с неизменённым protoc}
     \label{fig:problem1_vanilla_fgraph}
 \end{figure}
 
+\pagebreak
 На рисунке \ref{fig:problem1_patched_fgraph} представлен флеймграф для алгоритма, использующего версию \textit{protoc} с интегрированным модулем <<ленивой>> десериализации. 
 Работа с Protocol Buffers занимает 2.4\% от всего времени работы программы.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem1_patched_fgraph.png}
     \caption{Флеймграф алгоритма с изменённым protoc}
@@ -286,19 +284,20 @@ void Measure() {
 На рисунке \ref{fig:problem2_vanilla_timings} представлен замер в случае неизменённого \textit{protoc}.
 Десериализация всего сообщения заняла 582 миллисекунды. Стоит отметить, что при перезапусках теста время имеет небольшой разброс.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem2_vanilla_timings.png}
+    \includegraphics[width=0.90\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem2_vanilla_timings.png}
     \caption{Время десериализации сообщения с большой вложенностью в случае неизменённого protoc}
     \label{fig:problem2_vanilla_timings}
 \end{figure}
 
+\newpage
 Рассмотрим версию \textit{protoc} с интегрированным модулем <<ленивой>> десериализации.
 На рисунке \ref{fig:problem2_patched_timings} представлены результаты замера для той же задачи. Десериализация заняла 218 миллисекунд. Доступ к вложенному полю потребовал 202 миллисекунд. Суммарно десериализация и доступ к полю заняли меньше времени, чем в случае без ленивой десериализации.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem2_patched_timings.png}
+    \includegraphics[width=0.90\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem2_patched_timings.png}
     \caption{Время десериализации сообщения с большой вложенностью в случае изменённого protoc}
     \label{fig:problem2_patched_timings}
 \end{figure}
@@ -307,22 +306,22 @@ void Measure() {
 На рисунке \ref{fig:problem2_vanilla_fgraph} представлен флеймграф для алгоритма, использующего неизменённую версию \textit{protoc}. 
 Работа с Protocol Buffers занимает 17.5\% от полного времени работы программы.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem2_vanilla_fgraph.png}
+    \includegraphics[width=0.85\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem2_vanilla_fgraph.png}
     \caption{Флеймграф алгоритма с неизменённым protoc}
     \label{fig:problem2_vanilla_fgraph}
 \end{figure}
 
+\pagebreak
 На рисунке \ref{fig:problem2_patched_fgraph} представлен флеймграф для алгоритма, использующего версию \textit{protoc} с интегрированным модулем <<ленивой>> десериализации. 
 Работа с Protocol Buffers занимает 7\% от полного времени работы программы.
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.70\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem2_patched_fgraph.png}
+    \includegraphics[width=0.85\linewidth]{\commonSecPathPrefix/sec_research_results_attachments/problem2_patched_fgraph.png}
     \caption{Флеймграф алгоритма с изменённым protoc}
     \label{fig:problem2_patched_fgraph}
 \end{figure}
 
 Таким образом, предложенная реализация обеспечивает улучшение производительности в задачах, описанных в подразделе \ref{sec_problem:sec:problem2}.
-Следовательно даже при смешении обеих рассмотренных задач (фильтрация приходящих сообщений по легковесному полю с большой вложенностью) ожидается выигрыш в производительности.

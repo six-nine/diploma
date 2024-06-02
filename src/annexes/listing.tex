@@ -53,9 +53,7 @@ public:
     const Reflection* GetReflection() const;
 
     T* Unpack() const;
-\end{lstlisting}
-\pagebreak
-\begin{lstlisting}[style=CodeListing]
+
     void MergeFrom(const TLazyField<T>& from);
 
     const char* _InternalParse(const char* ptr, internal::ParseContext* ctx) override;
@@ -101,9 +99,6 @@ TLazyField<T>::TLazyField(google::protobuf::Arena* arena)
     BinaryData_ = std::make_shared<std::string>("");
 }
 
-\end{lstlisting}
-\pagebreak
-\begin{lstlisting}[style=CodeListing]
 template<class T>
 TLazyField<T>::TLazyField(const TLazyField<T>& other) {
     arena = other.arena;
@@ -163,9 +158,7 @@ TLazyField<T>& TLazyField<T>::operator=(const TLazyField<T>& other) {
 
     return *this;
 }
-\end{lstlisting}
-\pagebreak
-\begin{lstlisting}[style=CodeListing]
+
 template<class T>
 const char* TLazyField<T>::_InternalParse(const char* ptr, internal::ParseContext* ctx) {
     if (ctx->IsDerivedFromReleasableBufferStream()) {
@@ -220,9 +213,7 @@ template<class T>
 bool TLazyField<T>::IsInitialized() const {
     return true;
 }
-\end{lstlisting}
-\pagebreak
-\begin{lstlisting}[style=CodeListing]
+
 template<class T>
 void TLazyField<T>::Clear() {
     IsUnpacked_ = false;
@@ -280,9 +271,7 @@ void TLazyField<T>::_InternalParse(std::vector<google::protobuf::internal::TLazy
     BinaryDataType_ = EBinaryDataType::LIST_BUFFERS;
     IsUnpacked_ = false;
 }
-\end{lstlisting}
-\pagebreak
-\begin{lstlisting}[style=CodeListing]
+
 template<class T>
 size_t TLazyField<T>::GetBinarySize() const {
     if (BinarySize_) {

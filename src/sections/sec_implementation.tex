@@ -72,7 +72,7 @@ bool HasLazyPackFields(const FileDescriptor* file, const Options& options,
 
 \end{lstlisting}
 \end{minipage}
-
+\vspace{-1em}
 \subsection{Arena Allocation}
 
 Выделение памяти в аренах (Arena Allocation) ~--~ это техника оптимизации памяти для protobuf-сообщений, реализованная в Googe Protobuf C++. 
@@ -126,6 +126,7 @@ Formatter("array[$1$] = $2$;", 3, "Bla") -> "array[3] = Bla;"  // Верно
 Formatter("array[$1$] = $2$; // Index = $1$", 3, "Bla") ->
     "array[3] = Bla; // Index = 3"  // Верно
 \end{lstlisting}
+\vspace{-1em}
 
 \subsection{Реализация модуля}
 
@@ -158,9 +159,6 @@ enum class EBinaryDataType {
     LIST_BUFFERS = 1
 };
 
-\end{lstlisting}
-\pagebreak
-\begin{lstlisting}[style=CodeListing]
 public:
     TLazyField();
     TLazyField(google::protobuf::Arena* arena);
@@ -217,6 +215,7 @@ private:
 
 \end{lstlisting}
 
+\pagebreak
 Перечисление \textit{EBinaryDataType} определяет возможные типы данных для хранимых двоичных данных:
 \begin{itemize}
     \item STRING ~--~ данные хранятся как одна строка;
@@ -278,7 +277,7 @@ const char* TLazyField<T>::_InternalParse(const char* ptr, internal::ParseContex
 }
 \end{lstlisting}
 \end{minipage}
-
+\vspace{-1em}
 \subsubsection{Unpack}
 
 Данный метод производит десериализацию сообщения, если она ещё не была произведена.
@@ -308,7 +307,6 @@ T* TLazyField<T>::Unpack() const {
 }
 \end{lstlisting}
 \end{minipage}
-
 \pagebreak
 \subsubsection{Clear}
 
@@ -343,7 +341,7 @@ size_t TLazyField<T>::ByteSizeLong() const {
 }
 \end{lstlisting}
 \end{minipage}
-
+\vspace{-1em}
 \subsubsection{MergeFrom}
 
 Данный метод объединяет сообщение с другим сообщением того же типа. При этом производится распаковка обоих сообщений.
@@ -363,7 +361,7 @@ void TLazyField<T>::MergeFrom(const TLazyField<T>& from) {
 }
 \end{lstlisting}
 \end{minipage}
-
+\vspace{-1em}
 \subsection{Внедрение модуля в библиотеку}
 
 После реализации модуля необходимо произвести действия по кодогенерации его использования.
